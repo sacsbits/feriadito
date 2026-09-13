@@ -1,0 +1,40 @@
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+.astro/
+.output/
+
+# Entorno — NUNCA commitear secretos (este repo es público)
+.env
+.env.*
+!.env.example
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# Temporales del pipeline de datos
+/tmp/
+scripts/.cache/
+
+# Export de Firebase (temporal, no se commitea)
+firebase-export.json

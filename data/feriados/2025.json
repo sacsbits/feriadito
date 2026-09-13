@@ -1,0 +1,132 @@
+{
+  "anio": 2025,
+  "cantidad": 17,
+  "provisional": false,
+  "actualizado": "2026-09-13",
+  "fuentes": [
+    "api.boostr.cl",
+    "date.nager.at"
+  ],
+  "feriados": [
+    {
+      "fecha": "2025-01-01",
+      "nombre": "Año Nuevo",
+      "slug": "ano-nuevo",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2025-04-18",
+      "nombre": "Viernes Santo",
+      "slug": "viernes-santo",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-04-19",
+      "nombre": "Sábado Santo",
+      "slug": "sabado-santo",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-05-01",
+      "nombre": "Día Nacional del Trabajo",
+      "slug": "dia-nacional-del-trabajo",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2025-05-21",
+      "nombre": "Día de las Glorias Navales",
+      "slug": "dia-de-las-glorias-navales",
+      "tipo": "Civil",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-06-20",
+      "nombre": "Día Nacional de los Pueblos Indígenas",
+      "slug": "dia-nacional-de-los-pueblos-indigenas",
+      "tipo": "Civil",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-06-29",
+      "nombre": "San Pedro y San Pablo",
+      "slug": "san-pedro-y-san-pablo",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-07-16",
+      "nombre": "Día de la Virgen del Carmen",
+      "slug": "dia-de-la-virgen-del-carmen",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-08-15",
+      "nombre": "Asunción de la Virgen",
+      "slug": "asuncion-de-la-virgen",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-09-18",
+      "nombre": "Independencia Nacional",
+      "slug": "independencia-nacional",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2025-09-19",
+      "nombre": "Día de las Glorias del Ejército",
+      "slug": "dia-de-las-glorias-del-ejercito",
+      "tipo": "Civil",
+      "irrenunciable": true
+    },
+    {
+      "fecha": "2025-10-12",
+      "nombre": "Encuentro de Dos Mundos",
+      "slug": "encuentro-de-dos-mundos",
+      "tipo": "Civil",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-10-31",
+      "nombre": "Día de las Iglesias Evangélicas y Protestantes",
+      "slug": "dia-de-las-iglesias-evangelicas-y-protestantes",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-11-01",
+      "nombre": "Día de Todos los Santos",
+      "slug": "dia-de-todos-los-santos",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-11-16",
+      "nombre": "Elecciones Presidenciales y Parlamentarias",
+      "slug": "elecciones-presidenciales-y-parlamentarias",
+      "tipo": "Civil",
+      "irrenunciable": true,
+      "extraordinario": true
+    },
+    {
+      "fecha": "2025-12-08",
+      "nombre": "Inmaculada Concepción",
+      "slug": "inmaculada-concepcion",
+      "tipo": "Religioso",
+      "irrenunciable": false
+    },
+    {
+      "fecha": "2025-12-25",
+      "nombre": "Navidad",
+      "slug": "navidad",
+      "tipo": "Religioso",
+      "irrenunciable": true
+    }
+  ]
+}

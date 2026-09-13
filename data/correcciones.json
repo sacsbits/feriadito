@@ -1,0 +1,26 @@
+{
+  "_comentario": [
+    "Correcciones manuales que se aplican DESPUÉS de la reconciliación automática.",
+    "Existe porque las fuentes públicas tienen errores y omisiones: acá se arreglan",
+    "una vez y la corrección sobrevive a todas las sincronizaciones futuras.",
+    "Cada entrada debe justificarse. Si no hay una razón verificable, no va."
+  ],
+
+  "renombrar": {
+    "Día de las Glorias del Ejercito": {
+      "a": "Día de las Glorias del Ejército",
+      "razon": "Falta la tilde en los datos de boostr para 2022. Sin corregir genera dos slugs distintos para el mismo feriado y rompe la página perenne."
+    }
+  },
+
+  "agregar": [
+    {
+      "anio": 2022,
+      "fecha": "2022-09-04",
+      "nombre": "Plebiscito Constitucional",
+      "tipo": "Civil",
+      "irrenunciable": true,
+      "razon": "Feriado legal e irrenunciable por la Ley 21.451. boostr lo omite; date.nager.at sí lo lista. PENDIENTE DE CONFIRMACIÓN por el dueño del proyecto."
+    }
+  ]
+}
