@@ -42,7 +42,7 @@ los de 2024 y 2025 por consistencia.
 
 ## Fase 1 — Sitio
 
-### ⏸️ 3. Logo y mascota (el ciervo)
+### ✅ 3. Logo y mascota (el ciervo)
 
 **Para qué:** header, logo grande de escritorio, favicon, iconos de PWA e imágenes de
 Instagram y WhatsApp.
@@ -62,9 +62,22 @@ parche blanco. Se necesita transparencia o vector.
 - El **wordmark** — "feriadito.cl" con la carita del ciervo al lado (lo del header)
 - La **mascota sola** — el ciervo grande con las estrellitas (lo de la columna izquierda)
 
-**Dónde dejarlo:** cualquier carpeta del proyecto, avisando el nombre del archivo.
+**Entregado** (PNG con transparencia real, verificada):
 
-### ⏸️ 4. Enlaces personales para el footer
+| Archivo | Origen | Uso |
+|---|---|---|
+| `src/assets/mascota.png` | 1400×1222 | header, columna de escritorio, favicons, iconos de PWA |
+| `src/assets/wordmark.png` | 1000×250 | reservado (ver nota) |
+| `src/assets/logo-cuadrado.png` | 1400×1400 | base de las imágenes OG e Instagram |
+
+⚠️ **Nota de diseño:** el wordmark y el logo cuadrado **no se usan en la interfaz**. Su
+texto café oscuro da 1.94:1 sobre el fondo del modo oscuro — ilegible. En su lugar se usa
+la mascota sola como imagen y "feriadito.cl" como texto HTML, que se recolorea con el tema.
+Los PNG con texto sí sirven para OG e Instagram, donde el fondo siempre es claro.
+
+Si algún día aparece el vector, se puede volver al wordmark original recoloreándolo.
+
+### ⬜ 4. Enlaces personales para el footer
 
 Para la línea "Hecho por Stefano Corsi": ¿a dónde apunta? ¿GitHub, LinkedIn, sitio
 personal? Puede ser más de uno.

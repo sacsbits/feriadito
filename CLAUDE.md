@@ -468,8 +468,8 @@ probablemente le gane a Instagram en alcance real, y la API es más simple.
 |---|---|---|
 | **Setup** | Org de GitHub, transferencia del repo, git config local | ✅ **Hecho** |
 | **0** | `.gitignore`, estructura, README, LICENSE, `docs/PENDIENTES.md`, sondear APIs, generar `data/feriados/*.json`, reporte de discrepancias | ✅ **Hecho** |
-| **1** | Astro + home idéntica al diseño + páginas por año. Preview en Cloudflare. | ⬜ Siguiente |
-| **2** | Legales, 404, sitemap, robots, JSON-LD, OG images, `lang`, fix de zona horaria | ⬜ |
+| **1** | Astro + home idéntica al diseño + páginas por año | ✅ **Hecho** (falta el deploy de preview) |
+| **2** | Legales, 404, robots, OG images | ⬜ Siguiente (sitemap, JSON-LD, `lang` y zona horaria ya hechos en fase 1) |
 | **3** | **Bot de Instagram** (adelantado: es la palanca de crecimiento más rápida, y el App Review de Meta se demora) | ⬜ |
 | **4** | Cutover de DNS a Cloudflare. Search Console configurado *antes* para tener línea base. | ⬜ |
 | **5** | GitHub Action de sincronización de datos + rebuild diario | ⬜ |
@@ -506,8 +506,12 @@ la máquina apunta a `stefano.corsi@pervasivemind.net`, que no corresponde acá.
 El checklist completo, con especificaciones exactas y el paso a paso para obtener cada
 cosa, está en **`docs/PENDIENTES.md`**. Se piden **de a una y en su momento**.
 
-Pedido ahora: el export de la RTDB de Firebase (para validar el `tipo` de 2026) y la
-confirmación del Plebiscito 2022.
+Entregados: export de la RTDB (validado, 16/16) y los tres PNG del logo.
+Pendiente menor: a qué enlaces apunta "Hecho por Stefano Corsi" en el pie.
+
+⚠️ **Los assets son PNG, no vector.** El wordmark y el logo cuadrado no se usan en la
+interfaz porque su texto café da 1.94:1 en modo oscuro. Se usa la mascota sola + texto
+HTML. Los PNG con texto quedan para OG e Instagram (fondo siempre claro).
 
 ## 13. Cómo trabajar en este repo
 

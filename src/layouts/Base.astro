@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import mascota from '../assets/mascota.png';
 import '@fontsource-variable/plus-jakarta-sans';
 import '../styles/global.css';
 
@@ -32,7 +34,11 @@ const anio = new Date().getFullYear();
     <meta property="og:url" content={urlCanonica} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#c67d46" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
@@ -52,11 +58,7 @@ const anio = new Date().getFullYear();
     <header class="encabezado">
       <div class="contenedor encabezado__interior">
         <a href="/" class="marca">
-          <!-- TODO: reemplazar por el logo real (ver docs/PENDIENTES.md #3) -->
-          <svg viewBox="0 0 40 40" aria-hidden="true" fill="currentColor">
-            <path d="M20 11c-4 0-7 2.6-7 7 0 4.4 3.2 8 7 8s7-3.6 7-8c0-4.4-3-7-7-7Zm-4 7.5a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0Zm8 0a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0ZM20 23a2.2 2.2 0 0 1-2-1.2h4A2.2 2.2 0 0 1 20 23Z"/>
-            <path d="M13.4 12.6 9.6 7.4a1 1 0 0 1 1.5-1.3l4.3 4.7a1 1 0 0 1-1.4 1.4l-.6.4Zm13.2 0-.6-.4a1 1 0 0 1-1.4-1.4l4.3-4.7a1 1 0 0 1 1.5 1.3l-3.8 5.2Z"/>
-          </svg>
+          <Image src={mascota} alt="" width={44} height={38} loading="eager" />
           <span>feriadito.cl</span>
         </a>
 

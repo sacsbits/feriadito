@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Candado from './Candado.astro';
+import mascota from '../assets/mascota.png';
 import { aniosDisponibles, feriadosDe, proximoFeriado, type Feriado } from '../lib/feriados.ts';
 import { anioActual, diasEntre, fechaCompacta, fechaLarga, hoyEnChile, textoContador } from '../lib/fecha.ts';
 
@@ -24,7 +26,8 @@ const esProximo = inicial.fecha === proximoFeriado(hoy)?.fecha;
 <div class="disposicion">
   <div>
     <div class="mascota">
-      {/* TODO: reemplazar por la mascota real (ver docs/PENDIENTES.md #3) */}
+      <Image src={mascota} alt="Mascota de feriadito.cl" width={460} height={402} />
+      <p class="mascota__nombre">feriadito.cl</p>
     </div>
 
     <section class="tarjeta contador" id="contador" aria-live="polite">
