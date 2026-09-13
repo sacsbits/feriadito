@@ -1,0 +1,30 @@
+---
+/**
+ * Formato vertical para Instagram (1080×1350).
+ *
+ * Es una ruta propia y no `/og/hoy?f=ig` porque el sitio es estático: el query
+ * string no existe en tiempo de build, así que ambas variantes salían idénticas.
+ */
+import TarjetaOG from '../../components/TarjetaOG.astro';
+import LayoutOG from '../../layouts/LayoutOG.astro';
+import { proximoFeriado } from '../../lib/feriados.ts';
+import { diasEntre, fechaLargaConAnio, hoyEnChile, textoContador } from '../../lib/fecha.ts';
+
+const hoy = hoyEnChile();
+const proximo = proximoFeriado(hoy)!;
+const dias = diasEntre(hoy, proximo.fecha);
+const { encabezado, pie } = textoContador(dias);
+const esHoy = dias === 0;
+---
+<LayoutOG>
+  <TarjetaOG
+    ancho={1080}
+    alto={1350}
+    encabezado={esHoy ? undefined : encabezado}
+    numero={esHoy ? undefined : String(Math.abs(dias))}
+    pie={esHoy ? undefined : `${pie} el próximo feriado`}
+    etiqueta={esHoy ? '🎉 Hoy es feriado' : undefined}
+    titular={proximo.nombre}
+    fecha={fechaLargaConAnio(proximo.fecha)}
+  />
+</LayoutOG>

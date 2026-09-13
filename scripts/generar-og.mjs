@@ -45,11 +45,10 @@ const paginasOG = (await readdir(join(DIST, 'og')).catch(() => []))
   .filter((f) => f.endsWith('.html'))
   .map((f) => f.replace(/\.html$/, ''));
 
-const trabajos = [
-  ...paginasOG.map((n) => ({ ruta: `/og/${n}`, salida: `og/${n}.png`, ancho: 1200, alto: 630 })),
-  // Formato vertical para Instagram, solo del diario
-  { ruta: '/og/hoy?f=ig', salida: 'og/hoy-instagram.png', ancho: 1080, alto: 1350 },
-];
+// El viewport solo tiene que ser suficiente para que quepa la tarjeta: el
+// tamaño final lo define el propio elemento .og, que se captura completo.
+const VIEWPORT = { ancho: 1400, alto: 1500 };
+const trabajos = paginasOG.map((n) => ({ ruta: `/og/${n}`, salida: `og/${n}.png` }));
 
 const navegador = await puppeteer.launch({
   executablePath: CHROME,
@@ -61,7 +60,7 @@ await mkdir(join(DIST, 'og'), { recursive: true });
 
 for (const t of trabajos) {
   const pagina = await navegador.newPage();
-  await pagina.setViewport({ width: t.ancho, height: t.alto, deviceScaleFactor: 1 });
+  await pagina.setViewport({ width: VIEWPORT.ancho, height: VIEWPORT.alto, deviceScaleFactor: 1 });
   await pagina.goto(base + t.ruta, { waitUntil: 'networkidle0' });
   await pagina.evaluate(() => document.fonts.ready);
   const caja = await pagina.$('.og');
@@ -72,8 +71,11 @@ for (const t of trabajos) {
   const optimizado = await sharp(crudo).png({ palette: true, quality: 90, effort: 8 }).toBuffer();
   await writeFile(join(DIST, t.salida), optimizado);
 
+  // Se mide la imagen resultante, no el tamaño que se pidió: antes se
+  // registraba la intención y eso ocultó que ambas salían iguales.
+  const { width, height } = await sharp(optimizado).metadata();
   console.log(
-    `  ✓ ${t.salida.padEnd(28)} ${t.ancho}×${t.alto}  ` +
+    `  ✓ ${t.salida.padEnd(28)} ${width}×${height}  ` +
     `${(optimizado.length / 1024).toFixed(0)} KB (de ${(crudo.length / 1024).toFixed(0)} KB)`
   );
   await pagina.close();
