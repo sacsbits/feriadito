@@ -1,0 +1,180 @@
+---
+import Base from '../../layouts/Base.astro';
+import { aniosDisponibles, feriadosDe } from '../../lib/feriados.ts';
+import { calcularDescansos, type Descanso } from '../../lib/puentes.ts';
+import { diasEntre, hoyEnChile } from '../../lib/fecha.ts';
+
+export function getStaticPaths() {
+  return aniosDisponibles.map((anio) => ({ params: { anio: String(anio) } }));
+}
+
+const anio = Number(Astro.params.anio);
+const hoy = hoyEnChile();
+
+// Se incluyen los años vecinos para que los puentes de fin de diciembre y
+// principio de enero no queden cortados en el borde del año.
+const feriados = [anio - 1, anio, anio + 1].flatMap((a) => feriadosDe(a)?.feriados ?? []);
+const descansos = calcularDescansos(anio, feriados, 2);
+
+const gratis = descansos.filter((d) => d.pedir.length === 0);
+const conUno = descansos.filter((d) => d.pedir.length === 1);
+const conDos = descansos.filter((d) => d.pedir.length === 2);
+
+const diasGratis = gratis.reduce((n, d) => n + d.dias, 0);
+
+const fmt = (iso: string, conAnio = false) =>
+  new Intl.DateTimeFormat('es-CL', {
+    timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short',
+    ...(conAnio ? { year: 'numeric' } : {}),
+  }).format(new Date(iso + 'T12:00:00Z')).replace(/\./g, '');
+
+const rango = (d: Descanso) => `${fmt(d.inicio)} → ${fmt(d.fin)}`;
+const yaPaso = (d: Descanso) => diasEntre(hoy, d.fin) < 0;
+
+const descripcion =
+  `En ${anio} hay ${gratis.length} fines de semana largos sin pedir vacaciones. ` +
+  `Y pidiendo solo un día puedes armar ${conUno.length} descansos más. ` +
+  `Acá están todas las fechas.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: `¿Cuántos fines de semana largos hay en ${anio} en Chile?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `En ${anio} hay ${gratis.length} fines de semana largos de tres días o más sin necesidad de pedir vacaciones, que suman ${diasGratis} días libres.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `¿Cuándo conviene pedir vacaciones en ${anio}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: conUno.length
+          ? `Pidiendo un solo día de vacaciones se pueden armar ${conUno.length} descansos de cuatro días o más. El primero es ${fmt(conUno[0]!.pedir[0]!, true)}.`
+          : `En ${anio} los feriados ya caen de forma que no hay puentes evidentes de un día.`,
+      },
+    },
+  ],
+};
+
+const grupos = [
+  { titulo: 'Sin pedir vacaciones', lista: gratis,
+    nota: 'Fines de semana largos que ya vienen armados por el calendario.' },
+  { titulo: 'Pidiendo 1 día', lista: conUno,
+    nota: 'Un solo día de vacaciones y tienes cuatro o más días seguidos.' },
+  { titulo: 'Pidiendo 2 días', lista: conDos,
+    nota: 'Dos días de vacaciones para descansos más largos.' },
+];
+---
+<Base
+  titulo={`Fines de semana largos ${anio} — cuándo pedir vacaciones en Chile`}
+  descripcion={descripcion}
+  canonica={`/finde-largos/${anio}`}
+  jsonLd={jsonLd}
+>
+  <div class="contenedor prosa">
+    <h1>Fines de semana largos {anio}</h1>
+    <p class="bajada">
+      En {anio} hay <strong>{gratis.length} fines de semana largos</strong> sin pedir
+      vacaciones, que suman {diasGratis} días libres.
+      {conUno.length > 0 && (
+        <> Y pidiendo <strong>un solo día</strong> puedes armar {conUno.length} descansos más.</>
+      )}
+    </p>
+
+    {grupos.map((g) => g.lista.length > 0 && (
+      <>
+        <h2>{g.titulo}</h2>
+        <p class="nota-grupo">{g.nota}</p>
+        <div class="descansos">
+          {g.lista.map((d) => (
+            <div class="descanso" data-pasado={yaPaso(d) ? 'si' : 'no'}>
+              <div class="descanso__dias">
+                <strong>{d.dias}</strong>
+                <span>días</span>
+              </div>
+              <div class="descanso__cuerpo">
+                <p class="descanso__rango">{rango(d)}</p>
+                <p class="descanso__feriados">
+                  {d.feriados.map((f) => f.nombre).join(' · ')}
+                </p>
+                {d.pedir.length > 0 && (
+                  <p class="descanso__pedir">
+                    Pide {d.pedir.map((p) => fmt(p)).join(' y ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    ))}
+
+    <h2>Cómo se calcula</h2>
+    <p>
+      Se toman los feriados legales de {anio} y se buscan las rachas de días libres
+      seguidos, contando sábados y domingos. Después se revisa qué días hábiles están
+      atrapados entre dos rachas: esos son los <strong>puentes</strong>, los días que más
+      rinden si los pides de vacaciones.
+    </p>
+    <p>
+      Solo se muestran descansos de tres días o más, y los que requieren vacaciones
+      aparecen únicamente si el canje vale la pena. Las fechas salen de los mismos datos
+      del <a href={`/feriados/${anio}`}>listado de feriados {anio}</a>.
+    </p>
+
+    <nav class="anios" aria-label="Elegir año">
+      {aniosDisponibles.map((a) => (
+        <a class="anios__enlace" href={`/finde-largos/${a}`} aria-current={a === anio ? 'page' : undefined}>{a}</a>
+      ))}
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .nota-grupo { color: var(--texto-sec); font-size: .92rem; margin-bottom: 14px; }
+
+  .descansos { display: grid; gap: 10px; margin-bottom: 26px; }
+  @media (min-width: 640px) { .descansos { grid-template-columns: 1fr 1fr; } }
+
+  .descanso {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: var(--superficie);
+    border: 1px solid var(--borde-marca);
+    border-radius: var(--radio);
+  }
+  .descanso[data-pasado='si'] { opacity: .5; }
+
+  .descanso__dias {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding: 6px 0;
+    border-radius: var(--radio);
+    background: var(--brand-50);
+    line-height: 1.1;
+  }
+  :global(:root[data-tema='oscuro']) .descanso__dias { background: var(--hover); }
+  .descanso__dias strong { font-size: 1.4rem; color: var(--brand-500); }
+  .descanso__dias span { font-size: .7rem; color: var(--texto-mudo); }
+
+  .descanso__cuerpo { min-width: 0; }
+  .descanso__cuerpo p { margin: 0; }
+  .descanso__rango { font-weight: 600; font-size: .95rem; }
+  .descanso__feriados { font-size: .82rem; color: var(--texto-sec); }
+  .descanso__pedir {
+    margin-top: 3px !important;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--brand-500);
+  }
+</style>

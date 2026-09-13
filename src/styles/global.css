@@ -555,3 +555,60 @@ a { color: var(--brand-500); }
 }
 .boton:hover { background: var(--brand-700); }
 :root[data-tema='oscuro'] .boton { color: var(--fondo); }
+
+/* ───────────────────────── Feriados explicados ───────────────────────── */
+
+.explicados { margin-top: 30px; }
+.explicados h2 {
+  font-size: 1.15rem;
+  color: var(--brand-500);
+  margin-bottom: 4px;
+}
+.explicados > p {
+  color: var(--texto-sec);
+  font-size: .92rem;
+  margin-bottom: 12px;
+}
+.explicados ul {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 560px) { .explicados ul { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .explicados ul { grid-template-columns: 1fr 1fr 1fr; } }
+
+.explicados a {
+  display: block;
+  padding: 7px 2px;
+  font-size: .93rem;
+  color: var(--texto-sec);
+  text-decoration: none;
+  border-bottom: 1px solid var(--borde);
+}
+.explicados a:hover { color: var(--brand-500); }
+
+/* ───────────────────────── Promo de fines de semana largos ───────────────── */
+
+.promo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: var(--brand-50);
+  border: 1px solid var(--borde-marca);
+  border-radius: var(--radio);
+  text-decoration: none;
+  color: inherit;
+}
+.promo:hover { background: var(--brand-100); }
+:root[data-tema='oscuro'] .promo { background: var(--hover); }
+:root[data-tema='oscuro'] .promo:hover { background: var(--superficie); }
+
+.promo__icono { font-size: 1.5rem; line-height: 1; flex: none; }
+.promo strong { display: block; color: var(--brand-500); font-size: 1rem; }
+.promo__sub { display: block; font-size: .86rem; color: var(--texto-sec); }
+.promo__flecha { margin-left: auto; color: var(--brand-400); font-size: 1.2rem; flex: none; }

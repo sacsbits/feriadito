@@ -1,0 +1,132 @@
+---
+import Candado from './Candado.astro';
+import { type Feriado, proximoFeriado } from '../lib/feriados.ts';
+import { DESCRIPCIONES } from '../lib/descripciones.ts';
+import { diasEntre, fechaLargaConAnio, hoyEnChile } from '../lib/fecha.ts';
+
+interface Props { slug: string; ocurrencias: Feriado[] }
+const { slug, ocurrencias } = Astro.props;
+
+const hoy = hoyEnChile();
+const ejemplo = ocurrencias[0]!;
+const desc = DESCRIPCIONES[slug];
+
+const proxima = ocurrencias.find((f) => diasEntre(hoy, f.fecha) >= 0);
+const diasParaProxima = proxima ? diasEntre(hoy, proxima.fecha) : null;
+const esElProximoDelPais = proxima?.fecha === proximoFeriado(hoy)?.fecha;
+
+const diaSemana = (iso: string) =>
+  new Intl.DateTimeFormat('es-CL', { timeZone: 'UTC', weekday: 'long' })
+    .format(new Date(iso + 'T12:00:00Z'));
+
+const mes = (iso: string) =>
+  new Intl.DateTimeFormat('es-CL', { timeZone: 'UTC', month: 'long' })
+    .format(new Date(iso + 'T12:00:00Z'));
+
+/** Convierte **negritas** de las descripciones a HTML. */
+const conNegritas = (t: string) => t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+---
+<div class="prosa">
+  <h1>{ejemplo.nombre}</h1>
+  {desc && <p class="bajada">{desc.resumen}</p>}
+
+  <div class="ficha ficha--datos">
+    <div>
+      <span class="ficha__etiqueta">Tipo</span>
+      <span class="ficha__valor">{ejemplo.tipo}</span>
+    </div>
+    <div>
+      <span class="ficha__etiqueta">Irrenunciable</span>
+      <span class="ficha__valor">
+        {ejemplo.irrenunciable ? <>Sí <Candado /></> : 'No'}
+      </span>
+    </div>
+    {proxima && diasParaProxima !== null && (
+      <div>
+        <span class="ficha__etiqueta">Próxima vez</span>
+        <span class="ficha__valor">
+          {diasParaProxima === 0
+            ? '¡Hoy!'
+            : `En ${diasParaProxima} ${diasParaProxima === 1 ? 'día' : 'días'}`}
+        </span>
+      </div>
+    )}
+  </div>
+
+  {proxima && diasParaProxima !== null && diasParaProxima > 0 && (
+    <p class="destacado">
+      La próxima vez que sea feriado es el <strong>{fechaLargaConAnio(proxima.fecha).toLowerCase()}</strong>,
+      en {diasParaProxima} {diasParaProxima === 1 ? 'día' : 'días'}.
+      {esElProximoDelPais && ' Es además el próximo feriado del calendario chileno.'}
+    </p>
+  )}
+
+  {desc?.cuerpo.map((p) => <p set:html={conNegritas(p)} />)}
+
+  <h2>Qué día cae cada año</h2>
+  <div class="listado listado--compacto">
+    <div class="listado__encabezados" aria-hidden="true">
+      <span>Año</span><span>Cuándo cae</span><span></span>
+    </div>
+    {ocurrencias.map((f) => {
+      const dias = diasEntre(hoy, f.fecha);
+      return (
+        <a class="fila fila--enlace" href={`/feriados/${f.fecha.slice(0, 4)}`}
+           aria-current={f.fecha === proxima?.fecha ? 'true' : 'false'}>
+          <span class="fila__dia-mes">{f.fecha.slice(0, 4)}</span>
+          <span>{diaSemana(f.fecha)} {f.fecha.slice(8)} de {mes(f.fecha)}</span>
+          <span class="fila__tipo">
+            {dias < 0 ? <span class="etiqueta-pasado">pasado</span> : null}
+          </span>
+        </a>
+      );
+    })}
+  </div>
+  <p class="nota">Los años enlazan al listado completo de feriados de ese año.</p>
+</div>
+
+<style>
+  .ficha--datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px 34px;
+  }
+  .ficha__etiqueta {
+    display: block;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--texto-mudo);
+  }
+  .ficha__valor {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--brand-500);
+  }
+  .destacado {
+    padding: 14px 16px;
+    border-left: 3px solid var(--brand-300);
+    background: var(--brand-50);
+    border-radius: 0 var(--radio) var(--radio) 0;
+  }
+  :global(:root[data-tema='oscuro']) .destacado { background: var(--hover); }
+
+  .listado--compacto { margin-top: 12px; }
+  .listado--compacto :global(.fila) {
+    grid-template-columns: 62px 1fr auto;
+    text-decoration: none;
+    color: inherit;
+  }
+  .etiqueta-pasado {
+    margin-left: 6px;
+    font-size: .72rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--borde);
+    color: var(--texto-mudo);
+  }
+  .nota { margin-top: 10px; font-size: .85rem; color: var(--texto-mudo); }
+</style>

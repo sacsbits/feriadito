@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import Candado from './Candado.astro';
 import mascota from '../assets/mascota.png';
-import { aniosDisponibles, feriadosDe, proximoFeriado, type Feriado } from '../lib/feriados.ts';
+import { aniosDisponibles, feriadosDe, feriadosRecurrentes, proximoFeriado, type Feriado } from '../lib/feriados.ts';
 import { anioActual, diasEntre, fechaCompacta, fechaLarga, hoyEnChile, textoContador } from '../lib/fecha.ts';
 
 interface Props { anio: number }
@@ -21,6 +21,12 @@ const inicial: Feriado =
 const dias = diasEntre(hoy, inicial.fecha);
 const { encabezado, pie } = textoContador(dias);
 const esProximo = inicial.fecha === proximoFeriado(hoy)?.fecha;
+
+// Enlaces a las páginas perennes. Además de servirle al lector, son lo que
+// permite que Google descubra y relacione esas 17 páginas.
+const explicados = [...feriadosRecurrentes()]
+  .map(([slug, ocurrencias]) => ({ slug, nombre: ocurrencias[0]!.nombre }))
+  .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 ---
 
 <div class="disposicion">
@@ -102,6 +108,25 @@ const esProximo = inicial.fecha === proximoFeriado(hoy)?.fecha;
         );
       })}
     </div>
+
+    <a class="promo" href={`/finde-largos/${anio}`}>
+      <span class="promo__icono" aria-hidden="true">🏖️</span>
+      <span>
+        <strong>Fines de semana largos {anio}</strong>
+        <span class="promo__sub">Cuándo conviene pedir vacaciones para estirar los feriados</span>
+      </span>
+      <span class="promo__flecha" aria-hidden="true">→</span>
+    </a>
+
+    <section class="explicados">
+      <h2>Feriados explicados</h2>
+      <p>Qué se conmemora, en qué fecha cae cada año y por qué algunos se mueven.</p>
+      <ul>
+        {explicados.map((f) => (
+          <li><a href={`/feriados/${f.slug}`}>{f.nombre}</a></li>
+        ))}
+      </ul>
+    </section>
 
     <nav class="anios" aria-label="Elegir año">
       {aniosDisponibles.map((a) => (

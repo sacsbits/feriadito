@@ -1,0 +1,122 @@
+---
+/**
+ * Ruta única para /feriados/*, que atiende dos cosas distintas:
+ *   /feriados/2027          → listado del año
+ *   /feriados/viernes-santo → página perenne de ese feriado
+ *
+ * Van juntas porque Astro no permite dos rutas dinámicas hermanas en el mismo
+ * nivel, y esas URLs son las que mejor se leen: plural para la lista, y el
+ * nombre del feriado para el detalle.
+ */
+import Base from '../../layouts/Base.astro';
+import VistaAnio from '../../components/VistaAnio.astro';
+import VistaFeriado from '../../components/VistaFeriado.astro';
+import {
+  aniosDisponibles, anioPorDefecto, feriadosDe, feriadosRecurrentes, type Feriado,
+} from '../../lib/feriados.ts';
+import { DESCRIPCIONES } from '../../lib/descripciones.ts';
+import { fechaLargaConAnio } from '../../lib/fecha.ts';
+
+export function getStaticPaths() {
+  const anios = aniosDisponibles.map((anio) => ({
+    params: { ruta: String(anio) },
+    props: { clase: 'anio' as const, anio },
+  }));
+
+  const feriados = [...feriadosRecurrentes()].map(([slug, ocurrencias]) => ({
+    params: { ruta: slug },
+    props: { clase: 'feriado' as const, slug, ocurrencias },
+  }));
+
+  return [...anios, ...feriados];
+}
+
+type Props =
+  | { clase: 'anio'; anio: number }
+  | { clase: 'feriado'; slug: string; ocurrencias: Feriado[] };
+
+const props = Astro.props as Props;
+
+let titulo: string;
+let descripcion: string;
+let canonica: string;
+let imagenOG = '/og/hoy.png';
+let jsonLd: unknown;
+
+if (props.clase === 'anio') {
+  const { anio } = props;
+  const datos = feriadosDe(anio)!;
+  const irrenunciables = datos.feriados.filter((f) => f.irrenunciable).length;
+  // Mientras sea el año en curso, la canónica es "/" para no competir consigo
+  // misma. Cuando pase a ser un año más, la página se vuelve autónoma.
+  const esActual = anio === anioPorDefecto();
+
+  titulo = `Feriados Chile ${anio} — fechas e irrenunciables`;
+  descripcion =
+    `Los ${datos.cantidad} feriados de Chile en ${anio}: fechas, si son civiles o ` +
+    `religiosos, y cuáles de los ${irrenunciables} son irrenunciables.`;
+  canonica = esActual ? '/' : `/feriados/${anio}`;
+  imagenOG = `/og/${anio}.png`;
+  jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://feriadito.cl/' },
+          { '@type': 'ListItem', position: 2, name: `Feriados ${anio}` },
+        ],
+      },
+      ...datos.feriados.map((f) => ({
+        '@type': 'Event',
+        name: f.nombre,
+        startDate: f.fecha,
+        endDate: f.fecha,
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        eventStatus: 'https://schema.org/EventScheduled',
+        location: { '@type': 'Country', name: 'Chile' },
+      })),
+    ],
+  };
+} else {
+  const { slug, ocurrencias } = props;
+  const nombre = ocurrencias[0]!.nombre;
+  const desc = DESCRIPCIONES[slug];
+  const anios = ocurrencias.map((f) => f.fecha.slice(0, 4));
+
+  titulo = `${nombre} — cuándo cae y qué se conmemora`;
+  descripcion = desc
+    ? `${desc.resumen} Fechas de ${anios[0]} a ${anios[anios.length - 1]} y cuánto falta para la próxima.`
+    : `${nombre}: fechas por año en Chile, tipo de feriado y si es irrenunciable.`;
+  canonica = `/feriados/${slug}`;
+  jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://feriadito.cl/' },
+          { '@type': 'ListItem', position: 2, name: nombre },
+        ],
+      },
+      ...ocurrencias.map((f) => ({
+        '@type': 'Event',
+        name: f.nombre,
+        startDate: f.fecha,
+        endDate: f.fecha,
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        eventStatus: 'https://schema.org/EventScheduled',
+        location: { '@type': 'Country', name: 'Chile' },
+        description: `Feriado ${f.tipo.toLowerCase()} en Chile el ${fechaLargaConAnio(f.fecha).toLowerCase()}.`,
+      })),
+    ],
+  };
+}
+---
+<Base titulo={titulo} descripcion={descripcion} canonica={canonica} imagenOG={imagenOG} jsonLd={jsonLd}>
+  <div class="contenedor">
+    {props.clase === 'anio'
+      ? <VistaAnio anio={props.anio} />
+      : <VistaFeriado slug={props.slug} ocurrencias={props.ocurrencias} />}
+  </div>
+</Base>
