@@ -670,3 +670,26 @@ a { color: var(--brand-500); }
   border-left: 3px solid var(--brand-200);
   color: var(--texto-sec);
 }
+
+/* ───────────────────────── Botón de compartir ───────────────────────── */
+
+.compartir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 18px;
+  padding: 9px 16px;
+  min-height: 40px;
+  border: 1px solid var(--borde-marca);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--brand-500);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.compartir:hover { background: var(--brand-50); }
+:root[data-tema='oscuro'] .compartir:hover { background: var(--hover); }
+.compartir svg { width: 16px; height: 16px; flex: none; }

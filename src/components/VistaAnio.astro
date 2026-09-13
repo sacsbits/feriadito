@@ -58,6 +58,15 @@ const explicados = [...feriadosRecurrentes()]
         {inicial.irrenunciable && <Candado />}
       </p>
       <p class="contador__fecha" id="contador-fecha">{fechaLarga(inicial.fecha)}</p>
+
+      <button type="button" class="compartir" id="compartir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+          <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
+        </svg>
+        <span id="compartir-texto">Compartir</span>
+      </button>
     </section>
   </div>
 
@@ -221,6 +230,57 @@ const explicados = [...feriadosRecurrentes()]
     pintar(inicial);
 
     for (const fila of filas) fila.addEventListener('click', () => pintar(fila));
+
+    // Compartir. Se usa el menú nativo del sistema en vez de un enlace a
+    // WhatsApp: deja elegir la app y no requiere ningún script de terceros,
+    // que es lo que permite seguir sin rastreo.
+    const botonCompartir = document.getElementById('compartir');
+    const textoBoton = document.getElementById('compartir-texto');
+
+    function mensajeParaCompartir() {
+      const fila = filas.find((f) => f.getAttribute('aria-current') === 'true') ?? filas[0]!;
+      const dias = diasEntre(hoy, fila.dataset.fecha!);
+      const nombre = fila.dataset.nombre!;
+      const cuando = fechaLarga(fila.dataset.fecha!).toLowerCase();
+
+      if (dias === 0) return `Hoy es feriado en Chile 🇨🇱 ${nombre}`;
+      if (dias > 0) {
+        return `Quedan ${dias} ${dias === 1 ? 'día' : 'días'} para ${nombre} 🇨🇱\n${cuando}`;
+      }
+      const n = Math.abs(dias);
+      return `Han pasado ${n} ${n === 1 ? 'día' : 'días'} desde ${nombre} 🇨🇱\n${cuando}`;
+    }
+
+    async function avisar(texto: string) {
+      const original = textoBoton!.textContent;
+      textoBoton!.textContent = texto;
+      setTimeout(() => { textoBoton!.textContent = original; }, 2000);
+    }
+
+    botonCompartir?.addEventListener('click', async () => {
+      const datos = {
+        title: 'feriadito.cl',
+        text: mensajeParaCompartir(),
+        url: 'https://feriadito.cl',
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(datos);
+          return;
+        } catch (e) {
+          // El usuario canceló el menú: no es un error que haya que informar
+          if ((e as Error)?.name === 'AbortError') return;
+        }
+      }
+
+      try {
+        await navigator.clipboard.writeText(`${datos.text}\n${datos.url}`);
+        avisar('¡Copiado!');
+      } catch {
+        avisar('No se pudo copiar');
+      }
+    });
 
     // La barra compacta aparece cuando la tarjeta sale de pantalla
     const barra = document.getElementById('barra-compacta')!;

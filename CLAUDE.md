@@ -392,6 +392,11 @@ propia URL indexable con su propio `<title>`. Un dropdown que filtra en cliente 
    el viernes 18 de septiembre de 2026 (Independencia Nacional), en 6 días." → featured snippets.
 3. **JSON-LD**: `Event` por feriado, `FAQPage`, `BreadcrumbList`, `WebSite`, `Organization`.
 4. **Imagen OG generada a diario** — en Chile esto circula por WhatsApp, el preview vende solo.
+   Complementado con un **botón de compartir** en la tarjeta del contador, que usa la Web
+   Share API (el menú nativo del sistema) y cae a copiar-al-portapapeles donde no exista.
+   Se eligió por sobre un enlace `wa.me` porque deja elegir la app, funciona en escritorio
+   y **no requiere ningún script de terceros**, o sea no compromete la política de privacidad.
+   El texto compartido refleja el feriado seleccionado, no siempre el próximo.
 5. `sitemap.xml` automático (`@astrojs/sitemap`) + `robots.txt`.
 6. `lang="es-CL"`, meta descriptions por página, canonicals.
 7. **Core Web Vitals**: Astro estático deja casi perfecto. Sin ads, sin riesgo de CLS.
