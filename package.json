@@ -1,7 +1,7 @@
 {
   "name": "feriadito",
   "version": "2.0.0",
-  "description": "Cu\u00e1ntos d\u00edas faltan para el pr\u00f3ximo feriado en Chile",
+  "description": "Cuántos días faltan para el próximo feriado en Chile",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -29,6 +29,8 @@
   },
   "devDependencies": {
     "puppeteer-core": "^25.10.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "wait-on": "^9.1.0",
+    "wrangler": "^4.131.1"
   }
 }

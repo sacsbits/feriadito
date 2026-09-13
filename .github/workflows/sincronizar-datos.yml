@@ -1,0 +1,106 @@
+name: Sincronizar feriados
+
+on:
+  schedule:
+    # 03:00 UTC, antes del despliegue diario de las 04:15
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Reconciliar fuentes
+        id: sync
+        run: |
+          # SIN_CACHE evita que se reuse una respuesta vieja del disco
+          SIN_CACHE=1 node scripts/sync-feriados.mjs
+
+          # La decisión se toma SOLO por data/: el reporte lleva la fecha de
+          # generación, así que cambia todos los días aunque los datos no.
+          if git diff --quiet -- data/; then
+            echo "cambios=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "cambios=si" >> "$GITHUB_OUTPUT"
+          fi
+
+          REVISION=$(node -p "require('./scripts/.cache/resumen.json').requiereRevisionHumana")
+          echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Resumen de la sincronización"
+            echo '```json'
+            node -p "JSON.stringify(require('./scripts/.cache/resumen.json').incidencias, null, 2)"
+            echo '```'
+            git diff --stat -- data/ || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Caso 1: hay cambios y las fuentes coinciden → se publica solo.
+      - name: Commitear cambios
+        if: steps.sync.outputs.cambios == 'si' && steps.sync.outputs.revision == 'false'
+        run: |
+          git config user.name  "feriadito-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ docs/REPORTE-DATOS.md
+          git commit -m "Actualiza datos de feriados
+
+          Sincronización automática: todas las fuentes coinciden.
+          Ver docs/REPORTE-DATOS.md para el detalle."
+          git push
+
+      # Caso 2: hay cambios pero algo no calza → NO se publica, se abre un PR.
+      - name: Abrir PR para revisión
+        if: steps.sync.outputs.cambios == 'si' && steps.sync.outputs.revision == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: datos/revision-automatica
+          title: 'Datos de feriados: hay discrepancias que revisar'
+          commit-message: 'Actualiza datos de feriados (requiere revisión)'
+          body: |
+            La sincronización automática encontró **discrepancias entre las fuentes**,
+            así que no se publicó nada por su cuenta.
+
+            Revisa `docs/REPORTE-DATOS.md` (incluido en este PR) y fíjate en las
+            incidencias marcadas **⚠️ Revisar**.
+
+            Si la corrección es legítima, agrégala a `data/correcciones.json` con su
+            justificación —idealmente el número de la ley o el decreto— y las
+            sincronizaciones siguientes la respetarán.
+          labels: datos
+
+      # Caso 3: el script falló (por ejemplo, se cayó una fuente) → avisa.
+      - name: Avisar si falló
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Falló la sincronización de feriados',
+              body: [
+                'La sincronización automática falló.',
+                '',
+                'Lo más probable es que se haya caído alguna de las fuentes públicas.',
+                '**El sitio no se ve afectado**: los datos viven versionados en el repo',
+                'y se sirven desde ahí.',
+                '',
+                `Detalle de la ejecución: ${url}`,
+              ].join('\n'),
+              labels: ['datos'],
+            });

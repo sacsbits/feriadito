@@ -12,10 +12,11 @@ import { createServer } from 'node:http';
 import { readFile, writeFile, readdir, mkdir, rm, stat } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import puppeteer from 'puppeteer-core';
+import { buscarChrome } from './lib/chrome.mjs';
 import sharp from 'sharp';
 
 const DIST = 'dist';
-const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = await buscarChrome();
 
 const TIPOS = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript',

@@ -121,12 +121,36 @@ Las correcciones manuales viven en **`data/correcciones.json`**, con justificaci
 entrada, y se aplican *después* de la reconciliación automática — así sobreviven a cada
 sincronización.
 
+### ⚠️ El build necesita Chrome — por eso NO se usa la integración Git de Cloudflare
+
+`npm run build` encadena `scripts/generar-og.mjs`, que captura rutas reales del sitio con
+Puppeteer. El entorno de build de Cloudflare Pages **no garantiza un navegador**; los
+runners `ubuntu-latest` de GitHub Actions **sí lo traen preinstalado**.
+
+Por eso el flujo es: **GitHub Actions construye → despliega a Cloudflare Pages con
+wrangler** (subida directa). El proyecto de Pages debe llamarse exactamente `feriadito`.
+
+`scripts/lib/chrome.mjs` resuelve la ruta del navegador en macOS y Linux, y respeta
+`CHROME_PATH`.
+
 ### GitHub Action diario de sincronización
 1. Consulta `api.boostr.cl` y `date.nager.at`.
 2. Compara contra el JSON del repo.
 3. **Si las fuentes coinciden y hay un cambio** (ej. apareció un año nuevo) → commit
    automático + rebuild.
-4. **Si se contradicen, o la API está caída** → abre un issue y notifica. **No publica nada.**
+4. **Si se contradicen** → abre un **PR** para revisión humana. **No publica nada.**
+5. **Si el script falla** (fuente caída) → abre un issue. El sitio no se afecta.
+
+La decisión la toma `scripts/.cache/resumen.json` (campo `requiereRevisionHumana`), que el
+script escribe al final.
+
+⚠️ **Dos trampas de idempotencia ya resueltas — no reintroducirlas:**
+- El campo `actualizado` de cada año **solo avanza si los feriados cambiaron de verdad**.
+  Si se pusiera la fecha de hoy en cada corrida, habría un commit de ruido diario.
+- El workflow decide **solo mirando `data/`**, nunca el reporte: `docs/REPORTE-DATOS.md`
+  lleva la fecha de generación y cambia todos los días por diseño.
+- `contrastarFuentes` conoce `data/correcciones.json`: sin eso, una omisión ya arreglada a
+  mano se reportaría como pendiente para siempre y nunca se publicaría solo.
 
 Esto da las tres propiedades pedidas a la vez: se actualiza sola, nunca muestra datos
 incorrectos, y si el gobierno se cae el sitio ni se entera.
@@ -483,10 +507,10 @@ probablemente le gane a Instagram en alcance real, y la API es más simple.
 | **0** | `.gitignore`, estructura, README, LICENSE, `docs/PENDIENTES.md`, sondear APIs, generar `data/feriados/*.json`, reporte de discrepancias | ✅ **Hecho** |
 | **1** | Astro + home idéntica al diseño + páginas por año | ✅ **Hecho** (falta el deploy de preview) |
 | **2** | Legales, 404, robots, OG images | ✅ **Hecho** |
-| **3** | **Bot de Instagram** (adelantado: es la palanca de crecimiento más rápida, y el App Review de Meta se demora) | ⬜ Siguiente |
-| **4** | Cutover de DNS a Cloudflare. Search Console configurado *antes* para tener línea base. | ⬜ |
-| **5** | GitHub Action de sincronización de datos + rebuild diario | ⬜ |
-| **6** | Blog + páginas por feriado + calculadora de puentes | ⬜ |
+| **3** | **Bot de Instagram** | ⬜ **Pospuesto al final por decisión del dueño** (2026-09-12), pero se hará sí o sí: seguir desarrollando compatible con él |
+| **4** | Despliegue a Cloudflare + cutover de DNS. Search Console configurado *antes* para tener línea base. | 🔵 Automatización lista; **falta que el dueño cree la cuenta y los secretos** (ver `docs/PENDIENTES.md` 8b) |
+| **5** | GitHub Action de sincronización de datos + rebuild diario | ✅ **Hecho** |
+| **6** | Blog + páginas por feriado + calculadora de puentes | ⬜ Siguiente |
 | **7** | Apagar Firebase | ⬜ |
 
 Las URLs no cambian (hoy todo vive en `/`), y con < 100 visitas/mes **no hay rankings que

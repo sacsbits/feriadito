@@ -10,9 +10,10 @@
  * Uso: node scripts/capturar.mjs [url] [carpeta-salida]
  */
 import puppeteer from 'puppeteer-core';
+import { buscarChrome } from './lib/chrome.mjs';
 import { mkdir } from 'node:fs/promises';
 
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = await buscarChrome();
 
 const DISPOSITIVOS = [
   { nombre: 'iphone-se',   ancho: 375,  alto: 667,  escala: 2, movil: true },

@@ -130,7 +130,45 @@ con una alerta si falla — es el error que mata a la mayoría de estos bots.
 
 ---
 
-## Fase 4 — Cambio de DNS
+## Fase 4 — Despliegue
+
+### 🔵 8b. Cuenta de Cloudflare y credenciales de despliegue
+
+**Para qué:** publicar el sitio. Todo lo demás ya está listo y esperando estos dos secretos.
+
+**Paso a paso:**
+
+1. Crear cuenta gratuita en [dash.cloudflare.com](https://dash.cloudflare.com) (si no tienes).
+   Usa un correo de Tombu, no personal.
+
+2. **Crear el proyecto de Pages**, en modo *subida directa* (no conectado a Git — nosotros
+   construimos en GitHub Actions porque el build necesita Chrome):
+   - Menú lateral → **Workers & Pages** → **Create** → pestaña **Pages**
+   - **Upload assets** → nombre del proyecto: **`feriadito`** (exacto, así lo espera el workflow)
+   - Sube cualquier archivo para que se cree; el primer despliegue real lo hace el workflow
+
+3. **Crear el token de API:**
+   - Arriba a la derecha → **My Profile** → **API Tokens** → **Create Token**
+   - Plantilla **«Edit Cloudflare Workers»**, o una personalizada con el permiso
+     **Account → Cloudflare Pages → Edit**
+   - Copia el token: **se muestra una sola vez**
+
+4. **Copiar el Account ID:** está en la barra lateral derecha de la página principal del
+   dashboard, o en la URL (`dash.cloudflare.com/<ESTE-ES-EL-ID>`).
+
+5. **Guardar ambos en GitHub**, en
+   `github.com/tombu-spa/feriadito` → **Settings** → **Secrets and variables** → **Actions**
+   → **New repository secret**:
+
+   | Nombre del secreto | Valor |
+   |---|---|
+   | `CLOUDFLARE_API_TOKEN` | el token del paso 3 |
+   | `CLOUDFLARE_ACCOUNT_ID` | el ID del paso 4 |
+
+⚠️ Los nombres tienen que ser **exactamente** esos. Y nunca pegues estos valores en el
+código ni en un mensaje: el repo es público.
+
+Cuando estén los dos, el despliegue corre solo con cada push a `main` y todos los días.
 
 ### ⏸️ 9. Acceso a NIC Chile
 

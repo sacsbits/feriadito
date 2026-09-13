@@ -1,0 +1,50 @@
+name: Desplegar
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 04:15 UTC cae poco después de medianoche en Chile todo el año
+    # (UTC-3 en verano, UTC-4 en invierno). El rebuild diario es necesario
+    # para que el contador y la imagen de WhatsApp queden al día: el HTML es
+    # estático, así que un número generado ayer se indexaría congelado.
+    - cron: '15 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: desplegar
+  cancel-in-progress: false
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Desplegar a Cloudflare Pages
+        # Se construye acá y no en Cloudflare Pages porque el build necesita
+        # Chrome para las imágenes sociales, y el entorno de build de Pages no
+        # lo garantiza. Los runners de Ubuntu sí lo traen.
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=feriadito --branch=main
+
+      # Cuando el bot de Instagram esté listo (fase final), va acá o en un
+      # workflow aparte con `workflow_run` sobre este. Lo que necesita ya existe:
+      # https://feriadito.cl/og/hoy-instagram.png (1080×1350), regenerada por
+      # este mismo despliegue diario, en una URL pública — que es justo lo que
+      # exige la Graph API de Instagram para publicar.

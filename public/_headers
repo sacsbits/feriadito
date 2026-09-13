@@ -1,0 +1,14 @@
+# Assets con hash en el nombre: nunca cambian, se cachean para siempre
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Imágenes sociales: se regeneran a diario, caché corta
+/og/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Páginas: el CDN cachea, el navegador revalida. El contador cambia cada día.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN

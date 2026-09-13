@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tests de fecha
+        run: npm test
+
+      - name: Build
+        # Los runners de Ubuntu traen Chrome preinstalado, que el build necesita
+        # para generar las imágenes sociales capturando rutas reales del sitio.
+        run: npm run build
+
+      - name: Verificar que no haya desborde horizontal
+        run: |
+          npx astro preview --port 4321 &
+          npx wait-on http://localhost:4321 --timeout 60000
+          node scripts/capturar.mjs http://localhost:4321/ /tmp/capturas

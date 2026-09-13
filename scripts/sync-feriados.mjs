@@ -18,6 +18,17 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
+/**
+ * Fecha de hoy en Chile, como AAAA-MM-DD.
+ * No se usa toISOString(): es UTC, y de noche en Chile daría el día siguiente.
+ * Todo el proyecto fecha en America/Santiago.
+ */
+const hoyEnChile = () =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Santiago',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+
 // ─────────────────────────── Configuración ───────────────────────────
 
 const FUENTES = {
@@ -198,17 +209,28 @@ function completarDesdeCatalogo(feriadosNager, catalogo, anio, incidencias) {
   });
 }
 
-/** Compara fechas entre fuentes y registra lo que no calza. */
-function contrastarFuentes(anio, base, nager, incidencias) {
+/**
+ * Compara fechas entre fuentes y registra lo que no calza.
+ *
+ * `yaResueltas` son las fechas que ya se agregaron a mano en correcciones.json:
+ * sin eso, una omisión ya arreglada se seguiría reportando como pendiente para
+ * siempre y la sincronización nunca podría publicarse sin intervención.
+ */
+function contrastarFuentes(anio, base, nager, incidencias, yaResueltas = new Set()) {
   if (!nager) return;
   const enBase = new Map(base.map((f) => [f.fecha, f]));
   const enNager = new Map(nager.map((f) => [f.fecha, f]));
 
   for (const [fecha, f] of enNager) {
     if (!enBase.has(fecha)) {
+      const resuelta = yaResueltas.has(fecha);
       incidencias.push({
-        anio, severidad: 'revisar', feriado: f.nombre,
-        detalle: `nager lo lista el ${fecha}, boostr no lo tiene. Verificar si corresponde agregarlo.`,
+        anio,
+        severidad: resuelta ? 'info' : 'revisar',
+        feriado: f.nombre,
+        detalle: resuelta
+          ? `nager lo lista el ${fecha} y boostr no, pero ya está agregado a mano en correcciones.json.`
+          : `nager lo lista el ${fecha}, boostr no lo tiene. Verificar si corresponde agregarlo.`,
       });
     }
   }
@@ -279,7 +301,8 @@ for (const anio of anios) {
 
   if (boostr?.length) {
     feriados = boostr;
-    contrastarFuentes(anio, feriados, nager, incidencias);
+    const yaResueltas = new Set((correcciones.agregar ?? []).map((c) => c.fecha));
+    contrastarFuentes(anio, feriados, nager, incidencias, yaResueltas);
   } else if (nager?.length) {
     feriados = completarDesdeCatalogo(nager, catalogo, anio, incidencias);
     incidencias.push({
@@ -354,6 +377,21 @@ for (const [anio, feriados] of Object.entries(resultado)) {
 if (!DRY_RUN) {
   await mkdir(resolve(RAIZ, 'data/feriados'), { recursive: true });
   for (const [anio, feriados] of Object.entries(resultado)) {
+    const ruta = resolve(RAIZ, `data/feriados/${anio}.json`);
+
+    // `actualizado` solo avanza cuando los feriados cambian de verdad. Si se
+    // pusiera la fecha de hoy en cada corrida, la sincronización diaria
+    // generaría un commit de ruido todos los días aunque no cambiara nada.
+    let actualizado = hoyEnChile();
+    try {
+      const previo = JSON.parse(await readFile(ruta, 'utf8'));
+      if (JSON.stringify(previo.feriados) === JSON.stringify(feriados)) {
+        actualizado = previo.actualizado ?? actualizado;
+      }
+    } catch {
+      /* archivo nuevo */
+    }
+
     const esProvisional = feriados.some((f) => f.inferido);
     const payload = {
       anio: Number(anio),
@@ -362,14 +400,11 @@ if (!DRY_RUN) {
       // Las fechas fijas y las derivadas de Pascua son confiables; podrían
       // faltar feriados extraordinarios (elecciones, plebiscitos).
       provisional: esProvisional,
-      actualizado: new Date().toISOString().slice(0, 10),
+      actualizado,
       fuentes: crudo[anio].boostr?.length ? ['api.boostr.cl', 'date.nager.at'] : ['date.nager.at'],
       feriados,
     };
-    await writeFile(
-      resolve(RAIZ, `data/feriados/${anio}.json`),
-      JSON.stringify(payload, null, 2) + '\n'
-    );
+    await writeFile(ruta, JSON.stringify(payload, null, 2) + '\n');
   }
 }
 
@@ -389,7 +424,7 @@ console.log(
 
 // 7. Reporte de discrepancias para revisión humana
 if (!DRY_RUN) {
-  const hoy = new Date().toISOString().slice(0, 10);
+  const hoy = hoyEnChile();
   const sev = { corregido: '🔧 Corregido', revisar: '⚠️ Revisar', info: 'ℹ️ Informativo' };
 
   const filas = incidencias
@@ -454,6 +489,33 @@ ${filas || '| — | — | — | Sin incidencias |'}
   await mkdir(resolve(RAIZ, 'docs'), { recursive: true });
   await writeFile(resolve(RAIZ, 'docs/REPORTE-DATOS.md'), md);
   console.log('▶ Reporte escrito en docs/REPORTE-DATOS.md\n');
+}
+
+// 8. Resumen legible por máquina, para que el workflow decida qué hacer:
+// commitear directo o abrir un PR para revisión humana.
+if (!DRY_RUN) {
+  const porRevisar = incidencias.filter((i) => i.severidad === 'revisar');
+  const resumen = {
+    generado: new Date().toISOString(), // instante exacto, en UTC a propósito
+    anios: Object.keys(resultado).map(Number),
+    totalFeriados: Object.values(resultado).reduce((n, f) => n + f.length, 0),
+    aniosProvisionales: Object.entries(resultado)
+      .filter(([, f]) => f.some((x) => x.inferido))
+      .map(([a]) => Number(a)),
+    incidencias: {
+      corregidas: incidencias.filter((i) => i.severidad === 'corregido').length,
+      porRevisar: porRevisar.length,
+      informativas: incidencias.filter((i) => i.severidad === 'info').length,
+    },
+    // Si algo quedó por revisar, el cambio NO debe publicarse solo.
+    requiereRevisionHumana: porRevisar.length > 0,
+    detallePorRevisar: porRevisar,
+  };
+  await mkdir(resolve(RAIZ, 'scripts/.cache'), { recursive: true });
+  await writeFile(
+    resolve(RAIZ, 'scripts/.cache/resumen.json'),
+    JSON.stringify(resumen, null, 2)
+  );
 }
 
 export { resultado, incidencias };
