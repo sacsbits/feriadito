@@ -91,6 +91,13 @@ personal? Puede ser más de uno.
 - RUT: **78.507.077-1**
 - Email de contacto: **contacto@tombu.cl**
 
+### ⚠️ 5b. Al activar analítica, actualizar la política
+
+`/privacidad` dice hoy que el sitio no tiene analítica ni recolecta nada. Cuando se active
+**Cloudflare Web Analytics** en la fase 4, hay que actualizar esa página **en el mismo
+commit**. No es un trámite: publicar una política que no refleja lo que hace el sitio es
+exactamente el problema que estamos evitando.
+
 ### ⏸️ 6. Correo del dominio
 
 Se va a configurar `contacto@feriadito.cl` con **Cloudflare Email Routing** (gratis, sin

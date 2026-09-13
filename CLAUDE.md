@@ -311,8 +311,17 @@ fallback, inyecta `width`/`height` para evitar CLS, y saca nombres con hash
 | **OG / WhatsApp** | **PNG 1200×630** | Obligatorio PNG: Meta y WhatsApp no manejan AVIF/WebP de forma confiable en previews |
 | **Instagram** | **PNG 1080×1350** (vertical) | Vertical ocupa más feed que el cuadrado → mejor alcance |
 
-Las imágenes generadas (OG + Instagram) las produce el build con **satori** (HTML/CSS → SVG)
-+ **@resvg/resvg-js** (SVG → PNG). **El mismo generador sirve para ambos** — se escribe una vez.
+Las imágenes generadas (OG + Instagram) se producen capturando **rutas reales del sitio**
+(`/og/*`) con **Puppeteer**, en `scripts/generar-og.mjs`, encadenado a `npm run build`.
+
+Se descartó **satori**: Fontsource solo distribuye `woff2` y satori no lo acepta (necesita
+ttf/otf/woff), y además su CSS es un subconjunto que obligaría a redibujar el diseño aparte.
+Capturando una ruta real, la imagen usa el mismo CSS y la misma tipografía que el sitio y no
+puede quedar desalineada. **El mismo generador produce el vertical de Instagram**
+(`/og/hoy?f=ig`, 1080×1350).
+
+Las rutas `/og/*.html` se eliminan del build tras capturarlas y quedan excluidas del sitemap.
+Los PNG se cuantizan con sharp: de ~230 KB a ~37 KB.
 
 ## 7. SEO
 
@@ -402,6 +411,10 @@ Alternativas sin cookies si algún día se quiere retorno: link de "invítame un
 (Ko-fi / Cafecito / MercadoPago), o un auspiciador directo con banner estático
 (`<img>` + link, sin JS de terceros). Ninguna requiere consentimiento.
 
+⚠️ **Acoplamiento importante:** `/privacidad` afirma hoy que el sitio **no tiene analítica**.
+Cuando se active Cloudflare Web Analytics (fase 4), hay que **actualizar esa página en el
+mismo commit**, o el documento queda falso.
+
 ### Datos del responsable (para `/privacidad` y `/terminos`)
 - **Responsable del tratamiento:** Tombu SpA
 - **RUT:** 78.507.077-1
@@ -469,8 +482,8 @@ probablemente le gane a Instagram en alcance real, y la API es más simple.
 | **Setup** | Org de GitHub, transferencia del repo, git config local | ✅ **Hecho** |
 | **0** | `.gitignore`, estructura, README, LICENSE, `docs/PENDIENTES.md`, sondear APIs, generar `data/feriados/*.json`, reporte de discrepancias | ✅ **Hecho** |
 | **1** | Astro + home idéntica al diseño + páginas por año | ✅ **Hecho** (falta el deploy de preview) |
-| **2** | Legales, 404, robots, OG images | ⬜ Siguiente (sitemap, JSON-LD, `lang` y zona horaria ya hechos en fase 1) |
-| **3** | **Bot de Instagram** (adelantado: es la palanca de crecimiento más rápida, y el App Review de Meta se demora) | ⬜ |
+| **2** | Legales, 404, robots, OG images | ✅ **Hecho** |
+| **3** | **Bot de Instagram** (adelantado: es la palanca de crecimiento más rápida, y el App Review de Meta se demora) | ⬜ Siguiente |
 | **4** | Cutover de DNS a Cloudflare. Search Console configurado *antes* para tener línea base. | ⬜ |
 | **5** | GitHub Action de sincronización de datos + rebuild diario | ⬜ |
 | **6** | Blog + páginas por feriado + calculadora de puentes | ⬜ |
