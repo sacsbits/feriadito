@@ -1,0 +1,4 @@
+# El sitio anterior publicaba el sitemap en /sitemap.xml y esa URL quedó
+# registrada en Search Console desde 2023. Astro genera sitemap-index.xml,
+# así que se redirige para no dejar un 404 en una URL que Google ya conoce.
+/sitemap.xml  /sitemap-index.xml  301
