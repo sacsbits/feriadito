@@ -29,5 +29,7 @@ jobs:
       - name: Verificar que no haya desborde horizontal
         run: |
           npx astro preview --port 4321 &
+          SERVIDOR=$!
+          trap 'kill $SERVIDOR 2>/dev/null || true' EXIT
           npx wait-on http://localhost:4321 --timeout 60000
           node scripts/capturar.mjs http://localhost:4321/ /tmp/capturas

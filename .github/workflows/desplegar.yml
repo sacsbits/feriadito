@@ -18,6 +18,15 @@ concurrency:
 jobs:
   desplegar:
     runs-on: ubuntu-latest
+
+    env:
+      # Se compara contra vacío para no exponer el valor. Permite saltarse el
+      # despliegue mientras no existan las credenciales, en vez de fallar en
+      # cada push y en cada ejecución programada.
+      HAY_CREDENCIALES: >-
+        ${{ secrets.CLOUDFLARE_API_TOKEN != ''
+            && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -33,7 +42,31 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Avisar que faltan las credenciales
+        if: env.HAY_CREDENCIALES != 'true'
+        run: |
+          {
+            echo "## ⏭️ Despliegue omitido"
+            echo
+            echo "El sitio se construyó correctamente, pero **no se publicó**: faltan las"
+            echo "credenciales de Cloudflare."
+            echo
+            echo "Para activarlo, crea estos dos secretos en"
+            echo "**Settings → Secrets and variables → Actions**:"
+            echo
+            echo '| Secreto | De dónde sale |'
+            echo '|---|---|'
+            echo '| `CLOUDFLARE_API_TOKEN` | My Profile → API Tokens → Create Token |'
+            echo '| `CLOUDFLARE_ACCOUNT_ID` | barra lateral del dashboard de Cloudflare |'
+            echo
+            echo "El paso a paso completo está en \`docs/PENDIENTES.md\`, punto 8b."
+            echo
+            echo "Apenas existan, este mismo workflow publica sin cambiar nada más."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=Despliegue omitido::Faltan los secretos de Cloudflare. Ver el resumen del job."
+
       - name: Desplegar a Cloudflare Pages
+        if: env.HAY_CREDENCIALES == 'true'
         # Se construye acá y no en Cloudflare Pages porque el build necesita
         # Chrome para las imágenes sociales, y el entorno de build de Pages no
         # lo garantiza. Los runners de Ubuntu sí lo traen.
