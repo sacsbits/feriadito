@@ -1,0 +1,204 @@
+---
+import Candado from './Candado.astro';
+import { aniosDisponibles, feriadosDe, proximoFeriado, type Feriado } from '../lib/feriados.ts';
+import { anioActual, diasEntre, fechaCompacta, fechaLarga, hoyEnChile, textoContador } from '../lib/fecha.ts';
+
+interface Props { anio: number }
+const { anio } = Astro.props;
+
+const datos = feriadosDe(anio)!;
+const hoy = hoyEnChile();
+const esAnioActual = anio === anioActual();
+
+// En el año en curso se parte mostrando el próximo feriado. En otros años, el
+// primero de ese año. El JS del cliente lo recalcula al cargar, porque el HTML
+// es estático y podría haberse generado ayer.
+const inicial: Feriado =
+  (esAnioActual ? proximoFeriado(hoy) : undefined) ?? datos.feriados[0]!;
+
+const dias = diasEntre(hoy, inicial.fecha);
+const { encabezado, pie } = textoContador(dias);
+const esProximo = inicial.fecha === proximoFeriado(hoy)?.fecha;
+---
+
+<div class="disposicion">
+  <div>
+    <div class="mascota">
+      {/* TODO: reemplazar por la mascota real (ver docs/PENDIENTES.md #3) */}
+    </div>
+
+    <section class="tarjeta contador" id="contador" aria-live="polite">
+      {dias === 0 ? (
+        <p class="contador__hoy" id="contador-hoy">Hoy es feriado 🎉</p>
+      ) : (
+        <>
+          <p class="contador__encabezado" id="contador-encabezado">{encabezado}</p>
+          <p class="contador__numero" id="contador-numero" data-pasado={dias < 0 ? 'si' : 'no'}>
+            {Math.abs(dias)}
+          </p>
+          <p class="contador__pie" id="contador-pie">
+            {pie} {esProximo ? 'el próximo feriado' : 'el feriado'}
+          </p>
+        </>
+      )}
+
+      <hr class="contador__separador" />
+
+      <p class="contador__nombre" id="contador-nombre">
+        {inicial.nombre}
+        {inicial.irrenunciable && <Candado />}
+      </p>
+      <p class="contador__fecha" id="contador-fecha">{fechaLarga(inicial.fecha)}</p>
+    </section>
+  </div>
+
+  <div>
+    <div class="listado__cabecera">
+      <h1 class="listado__titulo">Feriados {anio}</h1>
+      <p class="leyenda">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm3 8H9V6a3 3 0 1 1 6 0v3Z"/>
+        </svg>
+        Irrenunciables
+      </p>
+    </div>
+
+    <div class="listado">
+      <div class="listado__encabezados" aria-hidden="true">
+        <span>Día</span><span>Feriado</span><span>Tipo</span>
+      </div>
+
+      {datos.feriados.map((f) => {
+        const c = fechaCompacta(f.fecha);
+        return (
+          <button
+            type="button"
+            class="fila"
+            data-fecha={f.fecha}
+            data-nombre={f.nombre}
+            data-irrenunciable={f.irrenunciable ? 'si' : 'no'}
+            aria-current={f.fecha === inicial.fecha ? 'true' : 'false'}
+          >
+            <span class="fila__fecha">
+              {/* Dos formatos, uno visible por vez. Son 2 nodos en vez de los
+                  6 que duplicaba la versión anterior del sitio. */}
+              <span class="fecha-corta">
+                <span class="fila__dia-semana">{c.diaSemana}</span>
+                <span class="fila__dia-mes">{c.diaMes} {c.mes}</span>
+              </span>
+              <span class="fecha-larga">{fechaLarga(f.fecha)}</span>
+            </span>
+            <span class="fila__cuerpo">
+              <span class="fila__nombre">
+                {f.nombre}
+                {f.irrenunciable && <Candado />}
+              </span>
+              <span class="fila__tipo">{f.tipo}</span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+
+    <nav class="anios" aria-label="Elegir año">
+      {aniosDisponibles.map((a) => (
+        <a
+          class="anios__enlace"
+          href={a === anioActual() ? '/' : `/feriados/${a}`}
+          aria-current={a === anio ? 'page' : undefined}
+        >
+          {a}
+        </a>
+      ))}
+    </nav>
+  </div>
+</div>
+
+<div class="barra-compacta" id="barra-compacta" data-visible="no" aria-hidden="true">
+  <strong id="barra-numero"></strong><span id="barra-nombre"></span>
+</div>
+
+<script>
+  import { diasEntre, fechaLarga, hoyEnChile, textoContador } from '../lib/fecha.ts';
+
+  const contador = document.getElementById('contador');
+  const filas = [...document.querySelectorAll<HTMLButtonElement>('.fila')];
+  if (contador && filas.length) {
+    const hoy = hoyEnChile();
+
+    // El próximo feriado de TODO el dataset, no solo del año visible.
+    const fechasVisibles = filas.map((f) => f.dataset.fecha!);
+    const proxima = fechasVisibles.find((f) => diasEntre(hoy, f) >= 0);
+
+    const $ = (id: string) => document.getElementById(id);
+
+    function pintar(fila: HTMLButtonElement) {
+      const fecha = fila.dataset.fecha!;
+      const nombre = fila.dataset.nombre!;
+      const dias = diasEntre(hoy, fecha);
+      const { encabezado, pie } = textoContador(dias);
+
+      for (const f of filas) f.setAttribute('aria-current', String(f === fila));
+
+      const hoyEl = $('contador-hoy');
+      const numEl = $('contador-numero');
+
+      if (dias === 0) {
+        // Reconstruye el bloque si el HTML estático no traía el estado "hoy"
+        if (!hoyEl) {
+          $('contador-encabezado')?.remove();
+          $('contador-pie')?.remove();
+          const p = document.createElement('p');
+          p.className = 'contador__hoy';
+          p.id = 'contador-hoy';
+          p.textContent = 'Hoy es feriado 🎉';
+          numEl?.replaceWith(p);
+        }
+      } else {
+        if (hoyEl) {
+          // Volver del estado "hoy" al contador normal
+          const enc = document.createElement('p');
+          enc.className = 'contador__encabezado'; enc.id = 'contador-encabezado';
+          const num = document.createElement('p');
+          num.className = 'contador__numero'; num.id = 'contador-numero';
+          const pi = document.createElement('p');
+          pi.className = 'contador__pie'; pi.id = 'contador-pie';
+          hoyEl.replaceWith(enc, num, pi);
+        }
+        $('contador-encabezado')!.textContent = encabezado;
+        const n = $('contador-numero')!;
+        n.textContent = String(Math.abs(dias));
+        n.dataset.pasado = dias < 0 ? 'si' : 'no';
+        $('contador-pie')!.textContent =
+          `${pie} ${fecha === proxima ? 'el próximo feriado' : 'el feriado'}`;
+      }
+
+      const nombreEl = $('contador-nombre')!;
+      const candado = fila.dataset.irrenunciable === 'si'
+        ? (fila.querySelector('.candado')?.outerHTML ?? '') : '';
+      nombreEl.innerHTML = '';
+      nombreEl.append(nombre);
+      if (candado) nombreEl.insertAdjacentHTML('beforeend', candado);
+
+      $('contador-fecha')!.textContent = fechaLarga(fecha);
+
+      // Barra compacta del móvil
+      $('barra-numero')!.textContent =
+        dias === 0 ? '¡Hoy!' : `${Math.abs(dias)} ${Math.abs(dias) === 1 ? 'día' : 'días'}`;
+      $('barra-nombre')!.textContent = ` · ${nombre}`;
+    }
+
+    // Corrige el HTML estático con la fecha real del visitante
+    const inicial = filas.find((f) => f.dataset.fecha === proxima) ?? filas[0]!;
+    pintar(inicial);
+
+    for (const fila of filas) fila.addEventListener('click', () => pintar(fila));
+
+    // La barra compacta aparece cuando la tarjeta sale de pantalla
+    const barra = document.getElementById('barra-compacta')!;
+    new IntersectionObserver(
+      ([e]) => barra.setAttribute('data-visible', e!.isIntersecting ? 'no' : 'si'),
+      { rootMargin: '-60px 0px 0px 0px' }
+    ).observe(contador);
+  }
+</script>

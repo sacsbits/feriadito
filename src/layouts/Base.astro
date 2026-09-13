@@ -1,0 +1,115 @@
+---
+import '@fontsource-variable/plus-jakarta-sans';
+import '../styles/global.css';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  /** Ruta canónica, ej. "/feriados/2027". Por defecto, la actual. */
+  canonica?: string;
+  jsonLd?: unknown;
+}
+
+const { titulo, descripcion, canonica, jsonLd } = Astro.props;
+const urlCanonica = new URL(canonica ?? Astro.url.pathname, Astro.site);
+const anio = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={urlCanonica} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="feriadito.cl" />
+    <meta property="og:locale" content="es_CL" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={urlCanonica} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <!-- Aplica el tema ANTES del primer pintado. Sin esto, quien tenga el modo
+         oscuro activo ve un flashazo blanco en cada carga. -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('tema') === 'oscuro') {
+          document.documentElement.dataset.tema = 'oscuro';
+        }
+      } catch {}
+    </script>
+  </head>
+
+  <body>
+    <header class="encabezado">
+      <div class="contenedor encabezado__interior">
+        <a href="/" class="marca">
+          <!-- TODO: reemplazar por el logo real (ver docs/PENDIENTES.md #3) -->
+          <svg viewBox="0 0 40 40" aria-hidden="true" fill="currentColor">
+            <path d="M20 11c-4 0-7 2.6-7 7 0 4.4 3.2 8 7 8s7-3.6 7-8c0-4.4-3-7-7-7Zm-4 7.5a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0Zm8 0a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0ZM20 23a2.2 2.2 0 0 1-2-1.2h4A2.2 2.2 0 0 1 20 23Z"/>
+            <path d="M13.4 12.6 9.6 7.4a1 1 0 0 1 1.5-1.3l4.3 4.7a1 1 0 0 1-1.4 1.4l-.6.4Zm13.2 0-.6-.4a1 1 0 0 1-1.4-1.4l4.3-4.7a1 1 0 0 1 1.5 1.3l-3.8 5.2Z"/>
+          </svg>
+          <span>feriadito.cl</span>
+        </a>
+
+        <div class="acciones">
+          <button
+            type="button"
+            class="boton-icono"
+            id="alternar-tema"
+            aria-label="Cambiar entre modo claro y oscuro"
+          >
+            <svg class="icono-tema--oscuro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+            <svg class="icono-tema--claro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="principal">
+      <slot />
+    </main>
+
+    <footer class="pie">
+      <div class="contenedor">
+        <p>Un proyecto de <strong>Tombu SpA</strong></p>
+        <p>Hecho por Stefano Corsi</p>
+        <div class="pie__enlaces">
+          <a href="/acerca">Acerca</a>
+          <a href="/privacidad">Privacidad</a>
+          <a href="https://github.com/tombu-spa/feriadito">Código</a>
+        </div>
+        <p style="margin-top:10px; font-size:.82rem; color:var(--texto-mudo)">
+          © {anio} · Sin publicidad, sin cookies, sin rastreo.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Alternar tema. Se guarda la preferencia; por defecto el sitio es claro
+      // aunque el sistema esté en oscuro (decisión explícita de diseño).
+      const boton = document.getElementById('alternar-tema');
+      boton?.addEventListener('click', () => {
+        const raiz = document.documentElement;
+        const oscuro = raiz.dataset.tema === 'oscuro';
+        if (oscuro) delete raiz.dataset.tema;
+        else raiz.dataset.tema = 'oscuro';
+        try {
+          localStorage.setItem('tema', oscuro ? 'claro' : 'oscuro');
+        } catch {}
+      });
+    </script>
+  </body>
+</html>

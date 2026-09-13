@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import VistaAnio from '../../components/VistaAnio.astro';
+import { aniosDisponibles, anioPorDefecto, feriadosDe } from '../../lib/feriados.ts';
+
+export function getStaticPaths() {
+  return aniosDisponibles.map((anio) => ({ params: { anio: String(anio) } }));
+}
+
+const anio = Number(Astro.params.anio);
+const datos = feriadosDe(anio)!;
+const irrenunciables = datos.feriados.filter((f) => f.irrenunciable).length;
+
+// Mientras este sea el año en curso, la URL canónica es "/" para no competir
+// consigo misma. Cuando pase a ser un año más, se vuelve autónoma.
+const esActual = anio === anioPorDefecto();
+
+const descripcion =
+  `Los ${datos.cantidad} feriados de Chile en ${anio}: fechas, si son civiles o ` +
+  `religiosos, y cuáles de los ${irrenunciables} son irrenunciables.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://feriadito.cl/' },
+        { '@type': 'ListItem', position: 2, name: `Feriados ${anio}` },
+      ],
+    },
+    ...datos.feriados.map((f) => ({
+      '@type': 'Event',
+      name: f.nombre,
+      startDate: f.fecha,
+      endDate: f.fecha,
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      eventStatus: 'https://schema.org/EventScheduled',
+      location: { '@type': 'Country', name: 'Chile' },
+    })),
+  ],
+};
+---
+<Base
+  titulo={`Feriados Chile ${anio} — fechas e irrenunciables`}
+  descripcion={descripcion}
+  canonica={esActual ? '/' : `/feriados/${anio}`}
+  jsonLd={jsonLd}
+>
+  <div class="contenedor">
+    <VistaAnio anio={anio} />
+  </div>
+</Base>

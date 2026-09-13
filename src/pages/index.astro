@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import VistaAnio from '../components/VistaAnio.astro';
+import { anioPorDefecto, feriadosDe, proximoFeriado } from '../lib/feriados.ts';
+import { diasEntre, fechaLargaConAnio, hoyEnChile } from '../lib/fecha.ts';
+
+const anio = anioPorDefecto();
+const datos = feriadosDe(anio)!;
+const hoy = hoyEnChile();
+const proximo = proximoFeriado(hoy);
+const dias = proximo ? diasEntre(hoy, proximo.fecha) : null;
+
+// Responde la pregunta literal, que es lo que Google levanta como snippet.
+const descripcion = proximo
+  ? dias === 0
+    ? `Hoy es feriado en Chile: ${proximo.nombre}. Mira todos los feriados ${anio} y cuánto falta para el siguiente.`
+    : `Faltan ${dias} días para el próximo feriado en Chile: ${proximo.nombre}, ${fechaLargaConAnio(proximo.fecha).toLowerCase()}. Todos los feriados ${anio}, irrenunciables incluidos.`
+  : `Todos los feriados de Chile ${anio}: fechas, tipo e irrenunciables.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://feriadito.cl/#website',
+      url: 'https://feriadito.cl/',
+      name: 'feriadito.cl',
+      description: 'Cuántos días faltan para el próximo feriado en Chile',
+      inLanguage: 'es-CL',
+      publisher: { '@id': 'https://feriadito.cl/#organizacion' },
+    },
+    {
+      '@type': 'Organization',
+      '@id': 'https://feriadito.cl/#organizacion',
+      name: 'Tombu SpA',
+      url: 'https://feriadito.cl/',
+    },
+    ...datos.feriados.map((f) => ({
+      '@type': 'Event',
+      name: f.nombre,
+      startDate: f.fecha,
+      endDate: f.fecha,
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      eventStatus: 'https://schema.org/EventScheduled',
+      location: { '@type': 'Country', name: 'Chile' },
+      description: `Feriado ${f.tipo.toLowerCase()} en Chile${f.irrenunciable ? ', irrenunciable' : ''}.`,
+    })),
+  ],
+};
+---
+<Base
+  titulo={`Feriados Chile ${anio} — cuánto falta para el próximo`}
+  descripcion={descripcion}
+  canonica="/"
+  jsonLd={jsonLd}
+>
+  <div class="contenedor">
+    <VistaAnio anio={anio} />
+  </div>
+</Base>

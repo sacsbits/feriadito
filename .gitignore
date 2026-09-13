@@ -38,3 +38,6 @@ scripts/.cache/
 
 # Export de Firebase (temporal, no se commitea)
 firebase-export.json
+
+# Capturas de verificación visual
+capturas/
