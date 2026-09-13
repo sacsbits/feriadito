@@ -54,21 +54,35 @@ for (const d of DISPOSITIVOS) {
         culpables.push(`${el.tagName.toLowerCase()}.${el.className || '?'} (${Math.round(r.width)}px)`);
       }
     }
-    return { vw, scroll: document.body.scrollWidth, culpables: culpables.slice(0, 5) };
+    return {
+      vw,
+      scroll: document.body.scrollWidth,
+      anchoBody: Math.round(document.body.getBoundingClientRect().width),
+      displayBody: getComputedStyle(document.body).display,
+      culpables: culpables.slice(0, 5),
+    };
   });
 
   const desborda = medida.scroll > medida.vw + 1;
-  if (desborda) problemas.push({ ...d, ...medida });
+  // El body debe ocupar el ancho del viewport. Si se encoge, el centrado por
+  // `margin-inline: auto` deja de funcionar y todo queda pegado a la izquierda.
+  const seEncoge = medida.anchoBody < medida.vw - 1;
+  if (desborda || seEncoge) problemas.push({ ...d, ...medida, desborda, seEncoge });
 
   await pagina.screenshot({ path: `${salida}/${d.nombre}.png`, fullPage: false });
   console.log(
-    `  ${desborda ? '✗' : '✓'} ${d.nombre.padEnd(12)} ${String(d.ancho).padStart(4)}px  ` +
-    `viewport=${medida.vw} scroll=${medida.scroll}` +
+    `  ${desborda || seEncoge ? '✗' : '✓'} ${d.nombre.padEnd(12)} ${String(d.ancho).padStart(4)}px  ` +
+    `viewport=${medida.vw} body=${medida.anchoBody} scroll=${medida.scroll}` +
+    (seEncoge ? `\n      ⚠ el body NO llena el viewport (display: ${medida.displayBody}) → el contenido queda a la izquierda` : '') +
     (medida.culpables.length ? `\n      desbordan: ${medida.culpables.join(', ')}` : '')
   );
   await pagina.close();
 }
 
 await navegador.close();
-console.log(problemas.length ? `\n✗ ${problemas.length} tamaño(s) con desborde\n` : '\n✓ Sin desborde horizontal en ningún tamaño\n');
+console.log(
+  problemas.length
+    ? `\n✗ ${problemas.length} tamaño(s) con problemas de ancho\n`
+    : '\n✓ Ancho correcto en todos los tamaños: sin desborde y el body llena el viewport\n'
+);
 process.exit(problemas.length ? 1 : 0);

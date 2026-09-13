@@ -10,9 +10,15 @@ import '../styles/global.css';
     <meta charset="utf-8" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Imagen social</title>
-    <style>
+    <!--
+      `is:inline` es obligatorio acá: sin él estos estilos entran al bundle CSS
+      global (cssCodeSplit está desactivado) y, como Astro no puede scopear
+      selectores `body`, se aplicarían al sitio entero.
+      Ya pasó una vez: un `body { display: inline-block }` encogió el body en
+      todas las páginas y rompió el centrado del layout.
+    -->
+    <style is:inline>
       html, body { margin: 0; padding: 0; background: #fff; }
-      body { display: inline-block; }
     </style>
   </head>
   <body><slot /></body>
