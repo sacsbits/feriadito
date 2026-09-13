@@ -1,0 +1,57 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.borrador);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { titulo, resumen, publicado, actualizado, autor, etiquetas } = post.data;
+
+const fecha = (d: Date) =>
+  new Intl.DateTimeFormat('es-CL', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: titulo,
+  description: resumen,
+  datePublished: publicado.toISOString(),
+  ...(actualizado ? { dateModified: actualizado.toISOString() } : {}),
+  author: { '@type': 'Person', name: autor },
+  publisher: { '@type': 'Organization', name: 'Tombu SpA' },
+  mainEntityOfPage: `https://feriadito.cl/blog/${post.id}`,
+  inLanguage: 'es-CL',
+  keywords: etiquetas.join(', '),
+};
+---
+<Base titulo={`${titulo} — feriadito.cl`} descripcion={resumen} canonica={`/blog/${post.id}`} jsonLd={jsonLd}>
+  <div class="contenedor prosa">
+    <article>
+      <h1>{titulo}</h1>
+      <p class="bajada">{resumen}</p>
+      <p class="firma">
+        Por <strong>{autor}</strong> ·
+        <time datetime={publicado.toISOString()}>{fecha(publicado)}</time>
+        {actualizado && <> · actualizado el {fecha(actualizado)}</>}
+      </p>
+      <Content />
+    </article>
+    <p class="volver"><a href="/blog">← Todos los artículos</a></p>
+  </div>
+</Base>
+
+<style>
+  .firma {
+    font-size: .88rem;
+    color: var(--texto-mudo);
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 22px !important;
+  }
+  .firma strong { color: var(--texto-sec); }
+  .volver { margin-top: 34px; font-size: .9rem; }
+</style>

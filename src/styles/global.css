@@ -152,6 +152,16 @@ a { color: var(--brand-500); }
 
 .acciones { display: flex; align-items: center; gap: 4px; }
 
+.enlace-nav {
+  padding: 8px 10px;
+  border-radius: var(--radio);
+  font-size: .93rem;
+  font-weight: 600;
+  color: var(--texto-sec);
+  text-decoration: none;
+}
+.enlace-nav:hover { background: var(--hover); color: var(--brand-500); }
+
 .boton-icono {
   display: grid;
   place-items: center;
@@ -612,3 +622,51 @@ a { color: var(--brand-500); }
 .promo strong { display: block; color: var(--brand-500); font-size: 1rem; }
 .promo__sub { display: block; font-size: .86rem; color: var(--texto-sec); }
 .promo__flecha { margin-left: auto; color: var(--brand-400); font-size: 1.2rem; flex: none; }
+
+/* ───────────────────────── Markdown del blog ───────────────────────── */
+
+/* Las tablas son el único elemento que puede exceder el ancho en móvil.
+   Se les da su propio contenedor con scroll en vez de dejar que rompan
+   el layout de la página. */
+.prosa table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .93rem;
+  margin-bottom: 20px;
+}
+.prosa .tabla-scroll { overflow-x: auto; margin-bottom: 20px; }
+.prosa .tabla-scroll table { margin-bottom: 0; }
+
+.prosa th, .prosa td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--borde);
+}
+.prosa th {
+  font-weight: 600;
+  color: var(--brand-500);
+  border-bottom: 1px solid var(--borde-marca);
+  white-space: nowrap;
+}
+.prosa tbody tr:last-child td { border-bottom: 0; }
+
+.prosa hr {
+  border: 0;
+  border-top: 1px solid var(--borde);
+  margin-block: 30px;
+}
+
+.prosa code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--brand-50);
+  font-size: .9em;
+}
+:root[data-tema='oscuro'] .prosa code { background: var(--hover); }
+
+.prosa blockquote {
+  margin: 0 0 16px;
+  padding-left: 16px;
+  border-left: 3px solid var(--brand-200);
+  color: var(--texto-sec);
+}

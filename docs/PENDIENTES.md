@@ -79,6 +79,10 @@ Si algún día aparece el vector, se puede volver al wordmark original recolore�
 
 ### ⬜ 4. Enlaces personales para el footer
 
+⚠️ Sigue pendiente: el pie dice «Hecho por Stefano Corsi» sin enlace, y los artículos del
+blog van firmados con su nombre. Falta decidir a dónde apuntan: ¿GitHub, LinkedIn, sitio
+personal? Puede ser más de uno.
+
 Para la línea "Hecho por Stefano Corsi": ¿a dónde apunta? ¿GitHub, LinkedIn, sitio
 personal? Puede ser más de uno.
 

@@ -399,6 +399,26 @@ propia URL indexable con su propio `<title>`. Un dropdown que filtra en cliente 
 9. **Posts firmados por Stefano Corsi** con byline y página de autor → E-E-A-T.
 10. **`/api/feriados.json` gratis** → backlinks de otros devs.
 
+### Estado del contenido (fase 6)
+
+36 URLs en el sitemap: home, 6 años, **17 páginas perennes por feriado**,
+**6 de fines de semana largos**, blog + 2 artículos, y las legales.
+
+- Páginas perennes: `/feriados/[slug]`, generadas desde `src/lib/descripciones.ts`.
+  **Regla de redacción: solo se afirma lo verificable.** Los patrones de traslado y de
+  feriado adicional no se enuncian como ley; se muestra la tabla de fechas reales y el
+  lector concluye. El patrón se derivó de los datos, no de memoria.
+- Calculadora: `src/lib/puentes.ts` detecta rachas de días libres y los días hábiles
+  atrapados entre dos rachas. ⚠️ El umbral correcto es `total >= 3 + pedir`; con
+  `>= 4 + pedir` se pierde el puente clásico (pedir 1 día, ganar 4).
+- Blog: content collection en `src/content/blog/*.md`, con RSS en `/rss.xml`.
+  Los posts van firmados por Stefano Corsi con `Article` en JSON-LD (E-E-A-T).
+
+⚠️ Los datos sobre feriados irrenunciables del artículo correspondiente se verificaron
+contra la Dirección del Trabajo (5 irrenunciables, aplicables a dependientes del comercio,
+con excepciones para restaurantes, farmacias de turno, combustibles, casinos y aeropuertos).
+No modificarlos sin volver a verificar.
+
 ### Ideas de contenido que rinden
 - "¿Qué abre y qué cierra el 18 de septiembre?" (supermercados, malls, bancos)
 - "Feriados irrenunciables 2027: qué significa y a quién aplica"
@@ -510,7 +530,7 @@ probablemente le gane a Instagram en alcance real, y la API es más simple.
 | **3** | **Bot de Instagram** | ⬜ **Pospuesto al final por decisión del dueño** (2026-09-12), pero se hará sí o sí: seguir desarrollando compatible con él |
 | **4** | Despliegue a Cloudflare + cutover de DNS. Search Console configurado *antes* para tener línea base. | 🔵 Automatización lista; **falta que el dueño cree la cuenta y los secretos** (ver `docs/PENDIENTES.md` 8b) |
 | **5** | GitHub Action de sincronización de datos + rebuild diario | ✅ **Hecho** |
-| **6** | Blog + páginas por feriado + calculadora de puentes | ⬜ Siguiente |
+| **6** | Blog + páginas por feriado + calculadora de puentes | ✅ **Hecho** |
 | **7** | Apagar Firebase | ⬜ |
 
 Las URLs no cambian (hoy todo vive en `/`), y con < 100 visitas/mes **no hay rankings que

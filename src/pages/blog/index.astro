@@ -1,0 +1,67 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.borrador))
+  .sort((a, b) => b.data.publicado.getTime() - a.data.publicado.getTime());
+
+const fecha = (d: Date) =>
+  new Intl.DateTimeFormat('es-CL', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Blog de feriadito.cl',
+  description: 'Artículos sobre los feriados de Chile: cómo funcionan, qué derechos implican y cómo aprovecharlos.',
+  url: 'https://feriadito.cl/blog',
+  publisher: { '@type': 'Organization', name: 'Tombu SpA' },
+};
+---
+<Base
+  titulo="Blog — feriadito.cl"
+  descripcion="Artículos sobre los feriados de Chile: qué son los irrenunciables, por qué algunos cambian de fecha y cómo aprovecharlos para descansar más."
+  canonica="/blog"
+  jsonLd={jsonLd}
+>
+  <div class="contenedor prosa">
+    <h1>Blog</h1>
+    <p class="bajada">
+      Cómo funcionan los feriados en Chile, qué derechos implican y cómo sacarles provecho.
+    </p>
+
+    {posts.length === 0 ? (
+      <p>Todavía no hay artículos publicados.</p>
+    ) : (
+      <div class="posts">
+        {posts.map((post) => (
+          <article class="post">
+            <h2><a href={`/blog/${post.id}`}>{post.data.titulo}</a></h2>
+            <p class="post__resumen">{post.data.resumen}</p>
+            <p class="post__meta">
+              <time datetime={post.data.publicado.toISOString()}>{fecha(post.data.publicado)}</time>
+              {post.data.etiquetas.length > 0 && <> · {post.data.etiquetas.join(' · ')}</>}
+            </p>
+          </article>
+        ))}
+      </div>
+    )}
+
+    <p class="nota-rss">
+      También hay <a href="/rss.xml">feed RSS</a>.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .posts { display: grid; gap: 4px; }
+  .post {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--borde);
+  }
+  .post h2 { font-size: 1.2rem; margin: 0 0 6px; }
+  .post h2 a { color: var(--brand-500); text-decoration: none; }
+  .post h2 a:hover { text-decoration: underline; }
+  .post__resumen { color: var(--texto-sec); margin-bottom: 6px !important; }
+  .post__meta { font-size: .84rem; color: var(--texto-mudo); margin: 0 !important; }
+  .nota-rss { margin-top: 26px; font-size: .88rem; color: var(--texto-mudo); }
+</style>

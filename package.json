@@ -23,6 +23,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "astro": "^7.3.2"
