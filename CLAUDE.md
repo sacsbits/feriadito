@@ -460,6 +460,10 @@ Alternativas sin cookies si algún día se quiere retorno: link de "invítame un
 (Ko-fi / Cafecito / MercadoPago), o un auspiciador directo con banner estático
 (`<img>` + link, sin JS de terceros). Ninguna requiere consentimiento.
 
+**Correo:** el sitio cita `contacto@tombu.cl` (no `contacto@feriadito.cl`). Se decidió
+**no crear casilla en feriadito.cl** y declararlo como dominio que no envía correo
+(`v=spf1 -all` + DMARC `p=reject`). Ver `docs/PENDIENTES.md` punto 6.
+
 ⚠️ **Acoplamiento importante:** `/privacidad` afirma hoy que el sitio **no tiene analítica**.
 Cuando se active Cloudflare Web Analytics (fase 4), hay que **actualizar esa página en el
 mismo commit**, o el documento queda falso.

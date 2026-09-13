@@ -102,12 +102,25 @@ personal? Puede ser más de uno.
 commit**. No es un trámite: publicar una política que no refleja lo que hace el sitio es
 exactamente el problema que estamos evitando.
 
-### ⏸️ 6. Correo del dominio
+### ✅ 6. Correo del dominio — decidido: NO se crea casilla en feriadito.cl
 
-Se va a configurar `contacto@feriadito.cl` con **Cloudflare Email Routing** (gratis, sin
-casilla ni servidor: reenvía a un correo real).
+Las páginas legales citan **`contacto@tombu.cl`**, que ya funciona con Email Routing en el
+dominio tombu.cl. No hace falta una casilla en feriadito.cl.
 
-**Hace falta:** a qué correo real se reenvía.
+En su lugar se declara que el dominio **no envía correo**, que protege contra suplantación
+sin sumar nada que mantener:
+
+| Dominio | Tipo | Nombre | Contenido |
+|---|---|---|---|
+| feriadito.cl | TXT | `@` | `v=spf1 -all` |
+| feriadito.cl | TXT | `_dmarc` | `v=DMARC1; p=reject; rua=mailto:contacto@tombu.cl` |
+| **tombu.cl** | TXT | `feriadito.cl._report._dmarc` | `v=DMARC1` |
+
+⚠️ El tercero es obligatorio: los informes DMARC van a otro dominio, y sin esa
+autorización explícita los servidores no los envían.
+
+⚠️ Si algún día se quiere `contacto@feriadito.cl`, hay que **revertir el SPF y bajar el
+DMARC a `p=none`** antes, o los envíos van a rebotar.
 
 ### ⏸️ 7. Verificación en Google Search Console
 
