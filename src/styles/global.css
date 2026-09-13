@@ -476,3 +476,82 @@ a { color: var(--brand-500); }
 .pie a { color: var(--texto-sec); text-decoration-color: var(--borde); }
 .pie a:hover { color: var(--brand-500); }
 .pie__enlaces { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+
+/* ───────────────────────── Páginas de texto ───────────────────────── */
+
+.prosa {
+  max-width: 70ch;
+  margin-inline: auto;
+}
+
+.prosa h1 {
+  font-size: clamp(1.7rem, 6vw, 2.4rem);
+  color: var(--brand-400);
+  letter-spacing: -.02em;
+  margin-bottom: 6px;
+}
+
+.prosa .bajada {
+  color: var(--texto-sec);
+  font-size: 1.05rem;
+  margin-bottom: 28px;
+}
+
+.prosa h2 {
+  font-size: 1.25rem;
+  color: var(--brand-500);
+  margin-top: 34px;
+  margin-bottom: 10px;
+}
+
+.prosa h3 {
+  font-size: 1.02rem;
+  margin-top: 22px;
+  margin-bottom: 6px;
+}
+
+.prosa p, .prosa li { line-height: 1.65; margin-bottom: 12px; }
+.prosa ul, .prosa ol { padding-left: 22px; margin-bottom: 12px; }
+.prosa li { margin-bottom: 6px; }
+.prosa strong { font-weight: 600; }
+
+.prosa .ficha {
+  background: var(--superficie);
+  border: 1px solid var(--borde-marca);
+  border-radius: var(--radio);
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+.prosa .ficha p { margin-bottom: 4px; }
+.prosa .ficha p:last-child { margin-bottom: 0; }
+
+.prosa .actualizado {
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--borde);
+  font-size: .88rem;
+  color: var(--texto-mudo);
+}
+
+/* ───────────────────────── Página 404 ───────────────────────── */
+
+.error {
+  text-align: center;
+  max-width: 42ch;
+  margin: 24px auto 0;
+}
+.error img { width: 170px; height: auto; margin-bottom: 12px; }
+.error h1 { font-size: clamp(1.6rem, 7vw, 2.2rem); color: var(--brand-400); margin-bottom: 10px; }
+.error p { color: var(--texto-sec); margin-bottom: 22px; text-wrap: balance; }
+
+.boton {
+  display: inline-block;
+  padding: 11px 20px;
+  border-radius: var(--radio);
+  background: var(--brand-500);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.boton:hover { background: var(--brand-700); }
+:root[data-tema='oscuro'] .boton { color: var(--fondo); }

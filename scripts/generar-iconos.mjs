@@ -40,5 +40,5 @@ for (const [ruta, tamano, fondo] of salidas) {
   console.log(`  ✓ ${ruta.padEnd(30)} ${tamano}×${tamano}`);
 }
 
-await sharp('src/assets/logo-cuadrado.png').resize(1400, 1400).png().toFile('public/logo-og.png');
-console.log('  ✓ public/logo-og.png              1400×1400 (base para OG e Instagram)');
+// Las imágenes sociales NO se generan acá: salen de capturar las rutas /og/*
+// con scripts/generar-og.mjs, para que usen el mismo CSS que el sitio.

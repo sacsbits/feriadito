@@ -1,0 +1,19 @@
+---
+/** Shell mínimo para las rutas de imágenes sociales. No se indexan: existen
+    solo para que Puppeteer las capture en el post-build. */
+import '@fontsource-variable/plus-jakarta-sans';
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Imagen social</title>
+    <style>
+      html, body { margin: 0; padding: 0; background: #fff; }
+      body { display: inline-block; }
+    </style>
+  </head>
+  <body><slot /></body>
+</html>

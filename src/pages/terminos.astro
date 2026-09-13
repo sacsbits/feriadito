@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+const actualizado = '13 de septiembre de 2026';
+---
+<Base
+  titulo="Términos de uso — feriadito.cl"
+  descripcion="Condiciones de uso de feriadito.cl: servicio gratuito, información referencial y datos de feriados de libre reutilización."
+>
+  <div class="contenedor prosa">
+    <h1>Términos de uso</h1>
+    <p class="bajada">
+      feriadito.cl es un servicio gratuito. Estos términos explican qué puedes esperar de
+      él y qué no.
+    </p>
+
+    <h2>Quién lo opera</h2>
+    <div class="ficha">
+      <p><strong>Tombu SpA</strong></p>
+      <p>RUT: 78.507.077-1</p>
+      <p>Contacto: <a href="mailto:contacto@tombu.cl">contacto@tombu.cl</a></p>
+    </div>
+
+    <h2>El servicio</h2>
+    <p>
+      feriadito.cl muestra los feriados legales de Chile y cuántos días faltan para el
+      próximo. Es <strong>gratuito, sin registro y sin publicidad</strong>.
+    </p>
+
+    <h2>La información es referencial</h2>
+    <p>
+      Los feriados de Chile están definidos por ley. Hacemos un esfuerzo serio por mantener
+      la información correcta y actualizada —los datos se reconcilian entre varias fuentes y
+      se revisan de forma automática—, pero <strong>este sitio no es una fuente oficial</strong>.
+    </p>
+    <p>
+      Para decisiones que tengan consecuencias legales, laborales o contractuales, consulta
+      la legislación vigente o a la autoridad competente. No nos hacemos responsables por
+      decisiones tomadas exclusivamente en base a lo que muestre este sitio.
+    </p>
+    <p>
+      Si detectas un error, avísanos: puedes escribir a
+      <a href="mailto:contacto@tombu.cl">contacto@tombu.cl</a> o abrir un reporte en
+      <a href="https://github.com/tombu-spa/feriadito/issues">el repositorio</a>. Lo
+      corregimos.
+    </p>
+
+    <h2>Disponibilidad</h2>
+    <p>
+      Procuramos que el sitio esté siempre disponible, pero no garantizamos continuidad.
+      Puede haber interrupciones por mantenimiento o por causas ajenas a nosotros, y podemos
+      modificar o discontinuar el servicio en cualquier momento.
+    </p>
+
+    <h2>Uso de los datos de feriados</h2>
+    <p>
+      Los feriados son <strong>información pública</strong>: están establecidos por ley y no
+      son de nadie. Puedes usarlos, copiarlos y redistribuirlos libremente, incluso con fines
+      comerciales, sin pedirnos permiso.
+    </p>
+    <p>
+      Ofrecemos además un archivo JSON de libre acceso para que puedas consumirlos desde tus
+      propios proyectos. Si te sirve, un enlace de vuelta se agradece, pero no es obligación.
+    </p>
+
+    <h2>Código fuente</h2>
+    <p>
+      El código de este sitio es abierto y está publicado bajo licencia MIT en
+      <a href="https://github.com/tombu-spa/feriadito">github.com/tombu-spa/feriadito</a>.
+      La mascota, el logo y el nombre «feriadito.cl» son de Tombu SpA y no están cubiertos
+      por esa licencia.
+    </p>
+
+    <h2>Legislación aplicable</h2>
+    <p>
+      Estos términos se rigen por la legislación chilena. Cualquier controversia se someterá
+      a los tribunales ordinarios de justicia de Chile.
+    </p>
+
+    <p class="actualizado">Última actualización: {actualizado}</p>
+  </div>
+</Base>

@@ -1,0 +1,119 @@
+---
+/**
+ * Tarjeta para imágenes sociales (OG / WhatsApp / Instagram).
+ *
+ * Se renderiza como una ruta real del sitio y se captura con Puppeteer, en vez
+ * de dibujarla con satori. Así reutiliza los mismos tokens y la misma
+ * tipografía del sitio, y no puede quedar desalineada con el diseño real.
+ */
+import { Image } from 'astro:assets';
+import mascota from '../assets/mascota.png';
+
+interface Props {
+  ancho: number;
+  alto: number;
+  encabezado?: string;
+  numero?: string;
+  pie?: string;
+  titular: string;
+  fecha?: string;
+  etiqueta?: string;
+}
+const { ancho, alto, encabezado, numero, pie, titular, fecha, etiqueta } = Astro.props;
+const vertical = alto > ancho;
+---
+<div class="og" style={`width:${ancho}px;height:${alto}px`} data-vertical={vertical}>
+  <div class="og__marca">
+    <Image src={mascota} alt="" width={120} height={105} />
+    <span>feriadito.cl</span>
+  </div>
+
+  <div class="og__centro">
+    {etiqueta && <p class="og__etiqueta">{etiqueta}</p>}
+    {encabezado && <p class="og__encabezado">{encabezado}</p>}
+    {numero && <p class="og__numero">{numero}</p>}
+    {pie && <p class="og__pie">{pie}</p>}
+    <p class="og__titular">{titular}</p>
+    {fecha && <p class="og__fecha">{fecha}</p>}
+  </div>
+
+  <p class="og__url">feriadito.cl</p>
+</div>
+
+<style>
+  .og {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding: 48px 56px;
+    background: linear-gradient(160deg, #fdf6ef 0%, #f9e6d2 100%);
+    overflow: hidden;
+  }
+
+  .og__marca {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    align-self: flex-start;
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--brand-700);
+    letter-spacing: -.02em;
+  }
+  .og__marca :global(img) { width: 66px; height: auto; }
+
+  .og__centro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    width: 100%;
+  }
+
+  .og__etiqueta {
+    margin: 0 0 14px;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--brand-500);
+  }
+  .og__encabezado { margin: 0; font-size: 40px; font-weight: 500; color: var(--texto-sec); }
+  .og__numero {
+    margin: -8px 0 0;
+    font-size: 210px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--brand-400);
+    font-variant-numeric: tabular-nums;
+  }
+  .og__pie { margin: 4px 0 0; font-size: 40px; font-weight: 500; color: var(--texto-sec); }
+  .og__titular {
+    margin: 26px 0 0;
+    font-size: 54px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--brand-700);
+    max-width: 90%;
+    text-wrap: balance;
+  }
+  .og__fecha { margin: 10px 0 0; font-size: 34px; color: var(--texto-mudo); }
+
+  .og__url {
+    margin: 0;
+    align-self: flex-end;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--brand-300);
+  }
+
+  /* Formato vertical de Instagram: hay más alto, se puede respirar */
+  .og[data-vertical='true'] { padding: 64px 56px; }
+  .og[data-vertical='true'] .og__numero { font-size: 260px; }
+  .og[data-vertical='true'] .og__titular { font-size: 62px; margin-top: 40px; }
+</style>

@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+import { aniosDisponibles, todosLosFeriados } from '../lib/feriados.ts';
+
+const total = todosLosFeriados().length;
+const desde = aniosDisponibles[0];
+const hasta = aniosDisponibles[aniosDisponibles.length - 1];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'Acerca de feriadito.cl',
+  publisher: { '@type': 'Organization', name: 'Tombu SpA' },
+  author: { '@type': 'Person', name: 'Stefano Corsi' },
+};
+---
+<Base
+  titulo="Acerca — por qué existe feriadito.cl"
+  descripcion="Por qué hice una página para ver los feriados de Chile, cómo está construida y de dónde salen los datos."
+  jsonLd={jsonLd}
+>
+  <div class="contenedor prosa">
+    <h1>Acerca de feriadito.cl</h1>
+    <p class="bajada">
+      Una página que responde una sola pregunta, y trata de responderla bien.
+    </p>
+
+    <h2>Por qué existe</h2>
+    <p>
+      Todos los años pasa lo mismo: alguien pregunta «¿cuándo es el próximo feriado?» y hay
+      que buscarlo. Y lo que uno encuentra suele ser una tabla antigua, lenta, rodeada de
+      publicidad, donde además hay que contar los días a mano en el calendario.
+    </p>
+    <p>
+      feriadito.cl hace justo eso y nada más: te dice <strong>cuántos días faltan</strong>,
+      para <strong>cuál feriado</strong>, y te deja tocar cualquier otro de la lista para ver
+      lo mismo. Carga al instante, se ve bien en el celular y no te interrumpe con nada.
+    </p>
+
+    <h2>Qué lo hace distinto</h2>
+    <ul>
+      <li><strong>Sin publicidad.</strong> Ninguna, en ninguna parte.</li>
+      <li><strong>Sin cookies ni rastreo.</strong> Por eso tampoco hay banner de consentimiento: no hay nada que consentir.</li>
+      <li><strong>Liviano de verdad.</strong> La página pesa unos 9 KB. Carga completa incluso con mala señal.</li>
+      <li><strong>Pensado para el celular</strong>, que es desde donde lo mira casi todo el mundo.</li>
+      <li><strong>Código abierto.</strong> Todo está publicado, incluidos los datos.</li>
+    </ul>
+
+    <h2>De dónde salen los datos</h2>
+    <p>
+      Acá viene la parte entretenida. <strong>La API oficial del Estado para consultar
+      feriados dejó de existir</strong>: el subdominio que la servía ya no tiene registro
+      DNS. No hubo aviso; simplemente se apagó.
+    </p>
+    <p>
+      Por eso feriadito no le pregunta a nadie en tiempo real. Los datos se reconcilian entre
+      varias fuentes públicas, se verifican y quedan guardados <strong>dentro del propio
+      sitio</strong>. Si mañana se cae otra fuente, acá no se nota.
+    </p>
+    <p>
+      Y verificar sirve. Cruzando fuentes aparecieron cosas como estas:
+    </p>
+    <ul>
+      <li>Una fuente clasificaba <strong>18 feriados religiosos como civiles</strong> en 2026 y 2027, pese a tenerlos correctos en los años anteriores.</li>
+      <li>A otra le faltaba por completo el <strong>Plebiscito Constitucional de 2022</strong>, que fue feriado legal e irrenunciable.</li>
+      <li>Una escribía «Ejercito» sin tilde en un año, lo que lo convertía en un feriado distinto al de los demás años.</li>
+      <li>Otra incluía feriados <strong>regionales</strong> mezclados con los nacionales.</li>
+    </ul>
+    <p>
+      Todo eso está corregido, documentado y a la vista en el
+      <a href="https://github.com/tombu-spa/feriadito/blob/main/docs/REPORTE-DATOS.md">reporte
+      de datos</a>, que se regenera solo. Hoy hay <strong>{total} feriados verificados entre
+      {desde} y {hasta}</strong>.
+    </p>
+
+    <h2>Los datos son tuyos también</h2>
+    <p>
+      Los feriados están definidos por ley: son información pública y no son de nadie. Así
+      que quedan disponibles en un archivo JSON que puedes usar en tus propios proyectos,
+      gratis y sin llave de acceso.
+    </p>
+    <p>
+      El formato y las direcciones están documentados en
+      <a href="https://github.com/tombu-spa/feriadito#api-p%C3%BAblica">el repositorio</a>.
+    </p>
+
+    <h2>Cómo está hecho</h2>
+    <p>
+      El sitio es HTML estático generado con <strong>Astro</strong>, servido desde una CDN.
+      No hay base de datos, no hay servidor de aplicaciones y no se ejecuta JavaScript de
+      ningún framework en tu navegador: solo unas líneas para el contador y el modo oscuro.
+    </p>
+    <p>
+      Un proceso automático revisa a diario si aparecieron feriados nuevos. Si las fuentes
+      coinciden, se actualiza solo. <strong>Si se contradicen, no publica nada y avisa</strong>,
+      porque es preferible quedarse quieto antes que mostrar una fecha equivocada.
+    </p>
+    <p>
+      Antes esto era una aplicación en Vue con una base de datos en tiempo real. Funcionaba,
+      pero era una exageración para mostrar una tabla y un número. La reescritura completa
+      está en el repositorio, commit por commit.
+    </p>
+
+    <h2>Quién lo hace</h2>
+    <p>
+      feriadito.cl es un proyecto de <strong>Tombu SpA</strong>, hecho por
+      <strong>Stefano Corsi</strong>.
+    </p>
+    <p>
+      Si encontraste un error, se te ocurre algo o simplemente quieres saludar:
+      <a href="mailto:contacto@tombu.cl">contacto@tombu.cl</a>, o directamente en
+      <a href="https://github.com/tombu-spa/feriadito/issues">GitHub</a>.
+    </p>
+  </div>
+</Base>

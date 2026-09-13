@@ -1,0 +1,23 @@
+---
+import TarjetaOG from '../../components/TarjetaOG.astro';
+import LayoutOG from '../../layouts/LayoutOG.astro';
+import { aniosDisponibles, feriadosDe } from '../../lib/feriados.ts';
+
+export function getStaticPaths() {
+  return aniosDisponibles.map((anio) => ({ params: { anio: String(anio) } }));
+}
+
+const anio = Number(Astro.params.anio);
+const datos = feriadosDe(anio)!;
+const irrenunciables = datos.feriados.filter((f) => f.irrenunciable).length;
+---
+<LayoutOG>
+  <TarjetaOG
+    ancho={1200}
+    alto={630}
+    etiqueta="Feriados en Chile"
+    numero={String(anio)}
+    titular={`${datos.cantidad} feriados`}
+    fecha={`${irrenunciables} de ellos irrenunciables`}
+  />
+</LayoutOG>

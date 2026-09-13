@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://feriadito.cl',
   trailingSlash: 'never',
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (pagina) => !pagina.includes('/og/') })],
   build: {
     // Un archivo por ruta, sin directorios con index.html
     format: 'file',

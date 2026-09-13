@@ -10,13 +10,14 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/generar-og.mjs",
     "preview": "astro preview",
     "sync": "node scripts/sync-feriados.mjs",
     "check": "astro check",
     "test": "node --experimental-strip-types tests/fecha.test.ts",
     "capturar": "node scripts/capturar.mjs",
-    "verificar": "node tests/interactividad.mjs"
+    "verificar": "node tests/interactividad.mjs",
+    "build:solo": "astro build"
   },
   "engines": {
     "node": ">=20"

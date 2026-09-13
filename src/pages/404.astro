@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import mascota from '../assets/mascota.png';
+import { proximoFeriado } from '../lib/feriados.ts';
+import { diasEntre, hoyEnChile } from '../lib/fecha.ts';
+
+const hoy = hoyEnChile();
+const proximo = proximoFeriado(hoy);
+const dias = proximo ? diasEntre(hoy, proximo.fecha) : null;
+---
+<Base
+  titulo="Página no encontrada — feriadito.cl"
+  descripcion="Esta página no existe. Vuelve al inicio para ver cuánto falta para el próximo feriado."
+>
+  <div class="contenedor">
+    <div class="error">
+      <Image src={mascota} alt="" width={340} height={297} />
+      <h1>Acá no hay nada</h1>
+      <p>
+        Esta página no existe.
+        {proximo && dias !== null && dias > 0 && (
+          <>Pero para que no sea viaje perdido: faltan <strong>{dias} días</strong> para {proximo.nombre}.</>
+        )}
+        {proximo && dias === 0 && <>Eso sí, hoy es feriado: {proximo.nombre} 🎉</>}
+      </p>
+      <a href="/" class="boton">Ir al inicio</a>
+    </div>
+  </div>
+</Base>
