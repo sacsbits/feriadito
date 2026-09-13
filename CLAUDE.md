@@ -155,6 +155,16 @@ Claves en español, consistente con el resto del proyecto. Un archivo por año:
 Estado actual: **2022–2027, 105 feriados, 17 recurrentes + 7 extraordinarios**, sin
 inconsistencias de tipo.
 
+**Formato de fecha: ISO 8601 (`AAAA-MM-DD`), siempre.** La base vieja de Firebase usaba
+`MM/DD/YYYY` (formato de EEUU), que es ambiguo —`04/03/2026` se puede leer como 4 de marzo—
+y no se ordena alfabéticamente. No reintroducirlo en ninguna parte.
+
+**Validación del pipeline (2026-09-13):** el export de la RTDB de Firebase (data curada a
+mano, la que el sitio muestra hoy) se contrastó contra `data/feriados/2026.json`:
+**16/16 coinciden exactamente** en fecha, nombre, tipo e irrenunciabilidad. La corrección
+automática por votación entre años llegó al mismo resultado que la curación humana.
+El export también confirma que "Ejercito" sin tilde es un error de boostr, no del dato real.
+
 ### Rango histórico: 2022 en adelante
 Se descartó partir en 2020 porque 2020–21 son un campo minado (plebiscito de octubre 2020,
 elecciones de constituyentes de mayo 2021 que fueron **dos días**, etc.). 2022–2025 aún
