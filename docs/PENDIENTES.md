@@ -77,7 +77,7 @@ Los PNG con texto sí sirven para OG e Instagram, donde el fondo siempre es clar
 
 Si algún día aparece el vector, se puede volver al wordmark original recoloreándolo.
 
-### ⬜ 4. Enlaces personales para el footer
+### 🔔 4. Enlaces personales para el footer — PENDIENTE, RECORDAR
 
 ⚠️ Sigue pendiente: el pie dice «Hecho por Stefano Corsi» sin enlace, y los artículos del
 blog van firmados con su nombre. Falta decidir a dónde apuntan: ¿GitHub, LinkedIn, sitio

@@ -572,6 +572,12 @@ la máquina apunta a `stefano.corsi@pervasivemind.net`, que no corresponde acá.
 El checklist completo, con especificaciones exactas y el paso a paso para obtener cada
 cosa, está en **`docs/PENDIENTES.md`**. Se piden **de a una y en su momento**.
 
+🔔 **PENDIENTE ACTIVO — recordárselo:** los enlaces personales de Stefano para el pie y la
+firma de los artículos. Hoy su nombre aparece en ambos lugares **sin enlace**, que es justo
+la parte de portafolio que motivaba tener el repo público. Falta decidir si apunta a GitHub,
+LinkedIn, sitio personal, o varios. Lo dejó pendiente a propósito el 2026-09-13 y pidió
+explícitamente que no se olvidara.
+
 Entregados: export de la RTDB (validado, 16/16) y los tres PNG del logo.
 Pendiente menor: a qué enlaces apunta "Hecho por Stefano Corsi" en el pie.
 
